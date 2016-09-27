@@ -7,12 +7,12 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.concurrent.Callable;
 
-public class StdOutConsumer implements Callable<Object>
+public class CollectingStdOutConsumer implements Callable<Object>
 {
 	private InputStream inputStream;
 	private StringWriter sw;
 
-	public StdOutConsumer(InputStream inputStream, StringWriter sw)
+	public CollectingStdOutConsumer(InputStream inputStream, StringWriter sw)
 	{
 		super();
 		this.inputStream = inputStream;
@@ -29,13 +29,11 @@ public class StdOutConsumer implements Callable<Object>
 		
 		while ((line = br.readLine()) != null)
 		{
-			if (sw!=null)
-			{
-				sw.write(line);
-				sw.write("\n");
-			}
+			sw.write(line);
+			sw.write("\n");
 		}
 		
+		sw.close();
 		return null;
 	}
 

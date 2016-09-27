@@ -1,6 +1,7 @@
 package curl;
 
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -21,13 +22,15 @@ public class ProcessExecutor implements Callable<Integer>
 	Date startedAt;
 
 	private ExecutorService executorService;
+	private StringWriter stdoutStringWriter;
 
 	private Process process;
 	
-	public ProcessExecutor(String[] args)
+	public ProcessExecutor(String[] args, StringWriter stdout)
 	{
 		super();
 		this.args = args;
+		this.stdoutStringWriter = stdout;
 	}
 
 	public void setLastLine(String s)
@@ -55,7 +58,7 @@ public class ProcessExecutor implements Callable<Integer>
 		InputStream errorStream = process.getErrorStream();
 
 		
-		StdOutConsumer stdOutConsumer = new StdOutConsumer(inputStream);
+		StdOutConsumer stdOutConsumer = new StdOutConsumer(inputStream, stdoutStringWriter);
 		
 		StdErrConsumer stdErrConsumer = new StdErrConsumer(errorStream, this);	
 
@@ -85,7 +88,8 @@ public class ProcessExecutor implements Callable<Integer>
 	
 	public static void main(String[] args) throws Exception
 	{
-		ProcessExecutor pe = new ProcessExecutor(args);
+		StringWriter sw = new StringWriter();
+		ProcessExecutor pe = new ProcessExecutor(args, sw);
 		pe.call();
 	}
 

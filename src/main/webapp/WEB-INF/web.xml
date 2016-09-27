@@ -10,9 +10,18 @@
 
 
 	<servlet>
-		<servlet-name>Controller</servlet-name>
-		<servlet-class>de.jwi.jfm.servlets.Controller</servlet-class>
+		<servlet-name>ControllerServlet</servlet-name>
+		<servlet-class>dlm.ControllerServlet</servlet-class>
 	</servlet>
+	
+		<servlet-mapping>
+		<servlet-name>ControllerServlet</servlet-name>
+		<url-pattern>/dlm/*</url-pattern>
+	</servlet-mapping>
+	
 
+	<welcome-file-list>
+		<welcome-file>/dlm</welcome-file>
+	</welcome-file-list>
 
 </web-app>

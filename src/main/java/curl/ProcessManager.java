@@ -50,7 +50,7 @@ public class ProcessManager
 	
 	public void runCommand(String[] args)
 	{
-		ProcessExecutor processExecutor = new ProcessExecutor(args);
+		ProcessExecutor processExecutor = new ProcessExecutor(args, null);
 		Future<Integer> future = executors.submit(processExecutor);
 
 		ManagedProcess managedProcess = new ManagedProcess();
