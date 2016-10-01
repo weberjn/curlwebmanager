@@ -2,6 +2,8 @@ package curl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -9,26 +11,61 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import dlm.util.CommandLineSplitter;
+
 public class ProcessManager
 {
 	private ExecutorService executors;
 
 	ConcurrentLinkedQueue<ManagedProcess> managedProcesses = new ConcurrentLinkedQueue<ManagedProcess>();
+
+	private CommandLineSplitter commandLineSplitter;
 	
-	class ManagedProcess
+	public class ManagedProcess
 	{
 		ProcessExecutor processExecutor;
 		Future<Integer> future;
+		
+		public String getStatus()
+		{
+			return future.isDone() ? "finished" : "running";
+		}
+		
+		public String getFilename()
+		{
+			return processExecutor.outputFilename;
+		}
+		
+		public String getReferer()
+		{
+			return processExecutor.referer;
+		}
+		
+		public Date getStartDate()
+		{
+			return processExecutor.startedAt;
+		}
+		
+		public String getLastLine()
+		{
+			return processExecutor.getLastLine();
+		}
 	}
 
 	public void init()
 	{
 		executors = Executors.newCachedThreadPool();
+		commandLineSplitter = new CommandLineSplitter();
 	}
 
 	public void shutdown()
 	{
 		executors.shutdown();
+	}
+
+	public Collection<ManagedProcess> getManagedProcesses()
+	{
+		return managedProcesses;
 	}
 	
 	public void removeDoneProcesses()
@@ -48,6 +85,13 @@ public class ProcessManager
 		managedProcesses.removeAll(doneProcesses);
 	}
 	
+	public void runCommand(String commandLine)
+	{
+		String[] args = commandLineSplitter.splitCommandLine(commandLine);
+		
+		runCommand(args);
+	}
+	
 	public void runCommand(String[] args)
 	{
 		ProcessExecutor processExecutor = new ProcessExecutor(args, null);
@@ -56,6 +100,11 @@ public class ProcessManager
 		ManagedProcess managedProcess = new ManagedProcess();
 		managedProcess.processExecutor = processExecutor;
 		managedProcess.future = future;
+		
+		if (!args[0].equals("curl"))
+		{
+			return;
+		}
 		
 		managedProcesses.add(managedProcess);
 	}
@@ -85,7 +134,7 @@ public class ProcessManager
 				System.out.println("get: " + p.future.get());
 				allDone &= p.future.isDone();
 				System.out.println("alldone:" + allDone);
-				System.out.println(p.processExecutor.lastStdErrLine);
+				System.out.println(p.processExecutor.getLastLine());
 				System.out.println();
 			}
 			Thread.sleep(1000);

@@ -6,8 +6,11 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
@@ -17,20 +20,26 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import curl.ProcessExecutor;
+import curl.ProcessManager;
+import curl.ProcessManager.ManagedProcess;
 
 public class ControllerServlet extends HttpServlet
 {
 	private static String version = "unknown";
 	private static String builddate = "unknown";
 	
+	private ProcessManager processManager;
 	
 	
-	
+
+
 	@Override
-	protected void service(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException
+	public void init() throws ServletException
 	{
-		// TODO Auto-generated method stub
-		super.service(arg0, arg1);
+		super.init();
+		
+		processManager = new ProcessManager();
+		processManager.init();
 	}
 
 
@@ -65,6 +74,7 @@ public class ControllerServlet extends HttpServlet
 		{
 			String curl = request.getParameter("curl");
 			System.out.println("submit: " + curl);
+			processManager.runCommand(curl);
 		}
 		
 		if ("curl -V".equals(action))
@@ -85,6 +95,8 @@ public class ControllerServlet extends HttpServlet
 		requestDispatcher.forward(request, response);
 	}
 
+
+	
 	private void doTest(HttpServletRequest request) throws Exception
 	{
 		String[] args = { "curl", "-V"};
@@ -143,6 +155,9 @@ public class ControllerServlet extends HttpServlet
 		{
 			getServletContext().log(computerName, e);
 		}
+		
+		Collection<ManagedProcess> managedProcesses = processManager.getManagedProcesses();
+		request.setAttribute("managedProcesses", managedProcesses);
 	}
 	
 	private String getComputerName()

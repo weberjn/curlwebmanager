@@ -17,25 +17,47 @@ public class ProcessExecutor implements Callable<Integer>
 {
 	String[] args;
 
-	AtomicReference<String> lastStdErrLine = new AtomicReference<String>(); 
+	private AtomicReference<String> lastStdErrLine = new AtomicReference<String>(); 
 	
 	Date startedAt;
-
+	String outputFilename;
+	String referer;
+	
 	private ExecutorService executorService;
 	private StringWriter stdoutStringWriter;
 
 	private Process process;
+	
+
 	
 	public ProcessExecutor(String[] args, StringWriter stdout)
 	{
 		super();
 		this.args = args;
 		this.stdoutStringWriter = stdout;
+		
+		for (int i = 0; i < args.length; i++)
+		{
+			if ("-o".equals(args[i]))
+			{
+				outputFilename = args[++i];
+			}
+			
+			if (args[i].startsWith("Referer"))
+			{
+				referer = args[i].substring("Referer".length() + 1);
+			}
+		}
 	}
 
 	public void setLastLine(String s)
 	{
 		lastStdErrLine.set(s);	
+	}
+	
+	public String getLastLine()
+	{
+		return lastStdErrLine.get();	
 	}
 	
 	public void destroy()

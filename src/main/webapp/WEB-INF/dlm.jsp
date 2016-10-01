@@ -1,4 +1,10 @@
-<jsp:useBean id="systemProperties" class="dlm.util.SystemProperties" scope="application" />
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<jsp:useBean id="systemProperties" class="dlm.util.SystemProperties"
+	scope="application" />
 
 <html>
 <head>
@@ -27,10 +33,11 @@
 
 	<table border="1" cellpadding="3">
 		<tr>
-			<td colspan="2" class="title">Submit</td>
+			<td colspan="2" class="title">Download with curl</td>
 		</tr>
 		<tr>
-			<td colspan="2" class="header-left"><small>Submit curl command</small></td>
+			<td colspan="2" class="header-left"><small>Submit curl
+					command</small></td>
 		</tr>
 		<tr>
 			<td colspan="2">
@@ -39,12 +46,12 @@
 						<tr>
 							<td class="row-right"><small>curl:</small></td>
 							<td class="row-left"><input type="text" name="curl"
-								size="80"></td>
+								size="80" style="width: 100%; height: 3em;"></td>
 						</tr>
 						<tr>
 							<td class="row-right">&nbsp;</td>
-							<td class="row-left"><input type="submit" name="action" value="Submit">
-							</td>
+							<td class="row-left"><input type="submit" name="action"
+								value="Submit"></td>
 						</tr>
 					</table>
 				</form>
@@ -52,6 +59,33 @@
 		</tr>
 	</table>
 	<br>
+	<table border="1" cellpadding="3">
+		<tr>
+			<td colspan="8" class="title">Download Information</td>
+		</tr>
+		<tr>
+			<td class="header-center"><small>Start Time</small></td>
+			<td class="header-center"><small>File</small></td>
+			<td class="header-center"><small>Referer</small></td>
+			<td class="header-center"><small>Status</small></td>
+			<td class="header-center"><small>curl Status</small></td>
+		</tr>
+		
+		<c:forEach items="${managedProcesses}" var="managedProcess">
+		
+		<tr>
+			<td class="row-center"><small><fmt:formatDate type="BOTH" value="${managedProcess.startDate}" /></small></td>
+			<td class="row-center"><small>${managedProcess.filename}</small></td>
+			<td class="row-center"><small>${managedProcess.referer}</small></td>
+			<td class="row-center"><small>${managedProcess.status}</small></td>
+			<td class="row-center"><small>${managedProcess.lastLine}</small></td>
+		</tr>
+		
+		</c:forEach>
+	</table>
+
+	<br>
+
 	<table border="1" cellpadding="3">
 		<tr>
 			<td colspan="2" class="title">curl Version</td>
@@ -65,8 +99,8 @@
 				<form method="post" action="${contextPath}/dlm">
 					<table cellspacing="0" cellpadding="3">
 						<tr>
-							<td class="row-left"><input type="submit" name="action" value="curl -V">
-							</td>
+							<td class="row-left"><input type="submit" name="action"
+								value="curl -V"></td>
 						</tr>
 					</table>
 				</form>
@@ -74,7 +108,9 @@
 		</tr>
 	</table>
 	<br>
-	
+
+
+
 	<br>
 
 	<table border="1" cellpadding="3">
@@ -101,17 +137,18 @@
 			<td class="row-center"><small>${computerName}</small></td>
 			<td class="row-center"><small>${hostAddress}</small></td>
 		</tr>
-			<tr>
+		<tr>
 			<td colspan="8" class="title">JVM</td>
-			</tr>
-			<tr>
-			<td colspan="8" class="row-left">
-			<small>Free memory: ${freeMemory} MB Total memory: ${totalMemory} MB Max memory: ${maxMemory} MB</small></td>
-			</tr>
-			<tr>
-			<td colspan="8" class="row-left">
-			<small>Start time: ${startTime}</small></td>
-			</tr>			
+		</tr>
+		<tr>
+			<td colspan="8" class="row-left"><small>Free memory:
+					${freeMemory} MB Total memory: ${totalMemory} MB Max memory:
+					${maxMemory} MB</small></td>
+		</tr>
+		<tr>
+			<td colspan="8" class="row-left"><small>Start time:
+					${startTime}</small></td>
+		</tr>
 	</table>
 	<br>
 
