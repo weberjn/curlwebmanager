@@ -17,6 +17,7 @@
 		<servlet-mapping>
 		<servlet-name>ControllerServlet</servlet-name>
 		<url-pattern>/dlm/*</url-pattern>
+		<url-pattern>/dlsub</url-pattern>
 	</servlet-mapping>
 	
 

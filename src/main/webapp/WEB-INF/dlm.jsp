@@ -1,13 +1,18 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<!DOCTYPE HTML>
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<html>
+<head>
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <jsp:useBean id="systemProperties" class="dlm.util.SystemProperties"
 	scope="application" />
 
-<html>
-<head>
 
 <title>manager</title>
 
@@ -16,20 +21,10 @@
 
 <body bgcolor="#FFFFFF">
 
-	<h1>JVM</h1>
-	<p>Free memory: 37.06 MB Total memory: 75.00 MB Max memory: 843.00
-		MB</p>
+	<h1>
+		<a href="${contextPath}">curl Download Manger</a>
+	</h1>
 
-
-	<hr size="1" noshade="noshade">
-	<table border="">
-		<tr>
-			<td class="page-title" bordercolor="#000000" align="left" nowrap>
-				<font size="+2">Server Status</font>
-			</td>
-		</tr>
-	</table>
-	<br>
 
 	<table border="1" cellpadding="3">
 		<tr>
@@ -59,30 +54,76 @@
 		</tr>
 	</table>
 	<br>
-	<table border="1" cellpadding="3">
-		<tr>
-			<td colspan="8" class="title">Download Information</td>
-		</tr>
-		<tr>
-			<td class="header-center"><small>Start Time</small></td>
-			<td class="header-center"><small>File</small></td>
-			<td class="header-center"><small>Referer</small></td>
-			<td class="header-center"><small>Status</small></td>
-			<td class="header-center"><small>curl Status</small></td>
-		</tr>
-		
-		<c:forEach items="${managedProcesses}" var="managedProcess">
-		
-		<tr>
-			<td class="row-center"><small><fmt:formatDate type="BOTH" value="${managedProcess.startDate}" /></small></td>
-			<td class="row-center"><small>${managedProcess.filename}</small></td>
-			<td class="row-center"><small>${managedProcess.referer}</small></td>
-			<td class="row-center"><small>${managedProcess.status}</small></td>
-			<td class="row-center"><small>${managedProcess.lastLine}</small></td>
-		</tr>
-		
-		</c:forEach>
-	</table>
+
+	<form name="downloads" action="${contextPath}/dlm" method="post">
+
+		<table border="1" cellpadding="3">
+			<tr>
+				<td colspan="8" class="title">Download Information</td>
+			</tr>
+			<tr>
+
+				<td class="header-center" style="width: 5%;"><script>
+					function doChkAll(oChkBox) {
+						var bChecked = oChkBox.checked;
+						var docFrmChk = document.forms['downloads'].index;
+						for (var i = 0; i < docFrmChk.length; i++) {
+							docFrmChk[i].checked = bChecked;
+						}
+					}
+				</script> <small> Check all <input type="checkbox" name="chkAll"
+						onclick="doChkAll(this);">
+				</small></td>
+
+				<th class="header-center"><small>Start Time</small>
+				</td>
+				<th class="header-center"><small>File</small>
+				</td>
+				<th class="header-center"><small>Referer</small>
+				</td>
+				<th class="header-center"><small>Status</small>
+				</td>
+				<th class="mono"><small> % Total % Received % Xferd
+						Average Speed Time Time Time Current Dload Upload Total Spent Left
+						Speed</small>
+				</td>
+			</tr>
+
+			<c:forEach items="${managedProcesses}" var="managedProcess">
+
+				<tr>
+					<td><small><input type="checkbox" name="index"
+							value="${managedProcess.id}"></small></td>
+
+					<td class="row-center"><small><fmt:formatDate
+								type="BOTH" value="${managedProcess.startDate}" /></small></td>
+					<td class="row-center"><small>${managedProcess.filename}</small></td>
+					<td class="row-center"><small>${managedProcess.referer}</small></td>
+					<td class="row-center"><small>${managedProcess.status}</small></td>
+					<td class="mono"><small>${managedProcess.lastLine}</small></td>
+				</tr>
+			</c:forEach>
+		</table>
+
+		<table>
+			<tbody>
+
+				<tr>
+					<td colspan="4" class="header-left">Action on selected
+						downloads</td>
+				</tr>
+
+				<tr>
+					<td class="row-center"><input type="submit" name="action"
+						value="remove"></td>
+					<td class="row-center"><input type="submit" name="action"
+						value="kill"></td>
+					<td class="row-center"><input type="submit" name="action"
+						value="resubmit"></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
 
 	<br>
 
@@ -118,14 +159,22 @@
 			<td colspan="8" class="title">Server Information</td>
 		</tr>
 		<tr>
-			<td class="header-center"><small>Server</small></td>
-			<td class="header-center"><small>JVM Version</small></td>
-			<td class="header-center"><small>JVM Vendor</small></td>
-			<td class="header-center"><small>OS Name</small></td>
-			<td class="header-center"><small>OS Version</small></td>
-			<td class="header-center"><small>OS Architecture</small></td>
-			<td class="header-center"><small>Hostname</small></td>
-			<td class="header-center"><small>IP Address</small></td>
+			<th class="header-center"><small>Server</small>
+			</td>
+			<th class="header-center"><small>JVM Version</small>
+			</td>
+			<th class="header-center"><small>JVM Vendor</small>
+			</td>
+			<th class="header-center"><small>OS Name</small>
+			</td>
+			<th class="header-center"><small>OS Version</small>
+			</td>
+			<th class="header-center"><small>OS Architecture</small>
+			</td>
+			<th class="header-center"><small>Hostname</small>
+			</td>
+			<th class="header-center"><small>IP Address</small>
+			</td>
 		</tr>
 		<tr>
 			<td class="row-center"><small>${serverInfo}</small></td>
@@ -141,14 +190,23 @@
 			<td colspan="8" class="title">JVM</td>
 		</tr>
 		<tr>
+			<td colspan="8" class="row-left"><small>Current time: <fmt:formatDate
+						type="BOTH" value="${currentTime}" /> JVM Start time: <fmt:formatDate
+						type="BOTH" value="${startTime}" /></small></td>
+		</tr>
+		<tr>
 			<td colspan="8" class="row-left"><small>Free memory:
 					${freeMemory} MB Total memory: ${totalMemory} MB Max memory:
 					${maxMemory} MB</small></td>
 		</tr>
-		<tr>
-			<td colspan="8" class="row-left"><small>Start time:
-					${startTime}</small></td>
-		</tr>
+		<c:if test="${systemProperties['os.name']=='Linux'}">
+			<tr>
+				<td colspan="8" class="row-left"><small>System uptime:
+						${uptime} System load: ${load}</small></td>
+			</tr>
+
+		</c:if>
+
 	</table>
 	<br>
 

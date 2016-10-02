@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import dlm.util.CommandLineSplitter;
+import edu.rice.cs.util.ArgumentTokenizer;
 
 public class ProcessManager
 {
@@ -19,16 +19,28 @@ public class ProcessManager
 
 	ConcurrentLinkedQueue<ManagedProcess> managedProcesses = new ConcurrentLinkedQueue<ManagedProcess>();
 
-	private CommandLineSplitter commandLineSplitter;
-	
 	public class ManagedProcess
 	{
 		ProcessExecutor processExecutor;
 		Future<Integer> future;
 		
+		public String getId()
+		{
+			return "" + hashCode();
+		}
+		
 		public String getStatus()
 		{
-			return future.isDone() ? "finished" : "running";
+			if (future.isCancelled())
+			{
+				return "canceled";
+			}
+			if (future.isDone())
+			{
+				return "done";
+			}					
+				
+			return "running";
 		}
 		
 		public String getFilename()
@@ -55,7 +67,6 @@ public class ProcessManager
 	public void init()
 	{
 		executors = Executors.newCachedThreadPool();
-		commandLineSplitter = new CommandLineSplitter();
 	}
 
 	public void shutdown()
@@ -66,6 +77,50 @@ public class ProcessManager
 	public Collection<ManagedProcess> getManagedProcesses()
 	{
 		return managedProcesses;
+	}
+	
+	public void killProcessByID(String id)
+	{
+		for (ManagedProcess process : managedProcesses)
+		{
+			if (process.getId().equals(id))
+			{
+				if (!process.future.isDone())
+				{
+					process.future.cancel(true);
+				}
+			}
+		}
+	}
+	
+	public void removeProcessByID(String id)
+	{
+		for (ManagedProcess process : managedProcesses)
+		{
+			if (process.getId().equals(id))
+			{
+				if (process.future.isDone())
+				{
+					managedProcesses.remove(process);
+				}
+			}
+		}
+	}
+	
+
+	public void resubmitProcessByID(String id)
+	{
+		for (ManagedProcess process : managedProcesses)
+		{
+			if (process.getId().equals(id))
+			{
+				if (process.future.isDone())
+				{
+					Future<Integer> future = executors.submit(process.processExecutor);
+					process.future = future;
+				}
+			}
+		}
 	}
 	
 	public void removeDoneProcesses()
@@ -87,7 +142,13 @@ public class ProcessManager
 	
 	public void runCommand(String commandLine)
 	{
-		String[] args = commandLineSplitter.splitCommandLine(commandLine);
+		// http://stackoverflow.com/questions/3259143/split-a-string-containing-command-line-parameters-into-a-string-in-java
+		
+		List<String> tokens = ArgumentTokenizer.tokenize(commandLine);
+		
+		String[] args = new String[tokens.size()];
+		
+		args = tokens.toArray(args);
 		
 		runCommand(args);
 	}
@@ -109,40 +170,6 @@ public class ProcessManager
 		managedProcesses.add(managedProcess);
 	}
 	
-	public static void main(String[] args) throws Exception
-	{
-		String[] a1 = {"curl", "--fail", "http://ubuntu16/~weberjn/Fx.exe", "-o", "F.exe" };
-		String[] a2 = {"curl", "--fail", "http://ubuntu16/~weberjn/F1.exe", "-o", "F1.exe" };
-		
-		ProcessManager pm = new ProcessManager();
-		pm.init();
-		pm.runCommand(a1);
-		pm.runCommand(a2);
-		
-		boolean allDone = false;
-		
-		while (!allDone)
-		{
-			allDone = true;
-			Iterator<ManagedProcess> it = pm.managedProcesses.iterator();
-			while (it.hasNext())
-			{
-				ManagedProcess p = it.next();
-				
-				System.out.println(Arrays.asList(p.processExecutor.args));
-				System.out.println("isdone: " + p.future.isDone());
-				System.out.println("get: " + p.future.get());
-				allDone &= p.future.isDone();
-				System.out.println("alldone:" + allDone);
-				System.out.println(p.processExecutor.getLastLine());
-				System.out.println();
-			}
-			Thread.sleep(1000);
-		}
-		
-		pm.removeDoneProcesses();
-		
-		pm.shutdown();
-	}
+
 
 }

@@ -2,15 +2,15 @@ package dlm;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
+import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
@@ -22,27 +22,23 @@ import javax.servlet.http.HttpServletResponse;
 import curl.ProcessExecutor;
 import curl.ProcessManager;
 import curl.ProcessManager.ManagedProcess;
+import de.jwi.jspwiki.uptimeplugin.Uptime;
 
 public class ControllerServlet extends HttpServlet
 {
 	private static String version = "unknown";
 	private static String builddate = "unknown";
-	
-	private ProcessManager processManager;
-	
-	
 
+	private ProcessManager processManager;
 
 	@Override
 	public void init() throws ServletException
 	{
 		super.init();
-		
+
 		processManager = new ProcessManager();
 		processManager.init();
 	}
-
-
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
@@ -53,21 +49,27 @@ public class ControllerServlet extends HttpServlet
 
 		requestDispatcher.forward(request, response);
 	}
-	
-	
-	
+
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
 		String pathInfo = null;
 		pathInfo = request.getPathInfo();
-		
+
 		String servletPath = request.getServletPath();
+
+		
 		
 		System.out.println(servletPath);
+
+		if ("/dlsub".equals(servletPath))
+		{
+			doRemoteSubmit(request);
+			return;
+		}
 		
 		System.out.println(pathInfo);
-		
+
 		String action = request.getParameter("action");
 
 		if ("Submit".equals(action))
@@ -76,7 +78,18 @@ public class ControllerServlet extends HttpServlet
 			System.out.println("submit: " + curl);
 			processManager.runCommand(curl);
 		}
-		
+
+		if ("remove".equals(action) || "kill".equals(action) || "restart".equals(action))
+		{
+			try
+			{
+				doMultipleActions(request, action);
+			} catch (Exception e)
+			{
+				throw new ServletException(e);
+			}
+		}
+
 		if ("curl -V".equals(action))
 		{
 			try
@@ -87,87 +100,135 @@ public class ControllerServlet extends HttpServlet
 				throw new ServletException(e);
 			}
 		}
-		
+
 		putServerInfo(request);
-		
+
 		RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher("/WEB-INF/dlm.jsp");
 
 		requestDispatcher.forward(request, response);
 	}
 
-
-	
-	private void doTest(HttpServletRequest request) throws Exception
+	private void doRemoteSubmit(HttpServletRequest request) throws ServletException 
 	{
-		String[] args = { "curl", "-V"};
-		
-		StringWriter sw = new StringWriter();
-		
-		ProcessExecutor processExecutor = new ProcessExecutor(args, sw);
-		Integer status = processExecutor.call();
-		
-		request.setAttribute("curlV", sw.toString());
+		String curlCommand = request.getParameter("curl");
+		try
+		{
+			curlCommand = URLDecoder.decode(curlCommand, "UTF-8");
+			processManager.runCommand(curlCommand);
+		} catch (UnsupportedEncodingException e)
+		{
+			throw new ServletException(e);
+		}
 	}
 	
+	private void doMultipleActions(HttpServletRequest request, String action) throws Exception
+	{
+		String[] selectedDownloads = request.getParameterValues("index");
+
+		for (String id : selectedDownloads)
+		{
+			if ("kill".equals(action))
+			{
+				processManager.killProcessByID(id);
+			}
+			if ("remove".equals(action))
+			{
+				processManager.removeProcessByID(id);
+			}
+			if ("resubmit".equals(action))
+			{
+				processManager.resubmitProcessByID(id);
+			}
+		}
+	}
+
+	private void doTest(HttpServletRequest request) throws Exception
+	{
+		String[] args =
+		{ "curl", "-V" };
+
+		StringWriter sw = new StringWriter();
+
+		ProcessExecutor processExecutor = new ProcessExecutor(args, sw);
+		Integer status = processExecutor.call();
+
+		request.setAttribute("curlV", sw.toString());
+	}
+
 	private void putServerInfo(HttpServletRequest request)
 	{
 		String contextPath = request.getContextPath();
 		request.setAttribute("contextPath", contextPath);
-		
+
 		String serverInfo = getServletContext().getServerInfo();
 		request.setAttribute("serverInfo", serverInfo);
-		
+
 		String javaVersion = System.getProperty("java.version");
 		request.setAttribute("javaVersion", javaVersion);
 
 		String javaVendor = System.getProperty("java.vendor");
 		request.setAttribute("javaVendor", javaVendor);
-		
+
 		String computerName = getComputerName();
 		request.setAttribute("computerName", computerName);
-		
+
 		Runtime runtime = Runtime.getRuntime();
-		long totalMemory = runtime.totalMemory(); // current heap allocated to the VM process
-		long freeMemory = runtime.freeMemory(); // out of the current heap, how much is free
-		long maxMemory = runtime.maxMemory(); // Max heap VM can use e.g. Xmx setting
-		
+		long totalMemory = runtime.totalMemory(); // current heap allocated to
+													// the VM process
+		long freeMemory = runtime.freeMemory(); // out of the current heap, how
+												// much is free
+		long maxMemory = runtime.maxMemory(); // Max heap VM can use e.g. Xmx
+												// setting
+
 		double m = 1024 * 1024;
 
-	    DecimalFormat dec = new DecimalFormat("0.00");
-		
+		DecimalFormat dec = new DecimalFormat("0.00");
+
 		request.setAttribute("totalMemory", dec.format(totalMemory / m));
 		request.setAttribute("freeMemory", dec.format(freeMemory / m));
 		request.setAttribute("maxMemory", dec.format(maxMemory / m));
-		
+
 		long startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
 		Calendar c = Calendar.getInstance();
 		c.setTimeInMillis(startTime);
 		Date time = c.getTime();
-		request.setAttribute("startTime", time.toString());
+		request.setAttribute("startTime", time);
+
+		request.setAttribute("currentTime", new Date());
 		
 		try
 		{
-			InetAddress address = InetAddress.getByName(computerName); 
+			Uptime uptime = new Uptime();
+			request.setAttribute("uptime", uptime.uptime());
+			request.setAttribute("load", uptime.loadavg());
+		}
+		catch (IOException e)
+		{
+			getServletContext().log(computerName, e);
+		}
+		try
+		{
+			InetAddress address = InetAddress.getByName(computerName);
 			String hostAddress = address.getHostAddress();
-			
+
 			request.setAttribute("hostAddress", hostAddress);
 		} catch (UnknownHostException e)
 		{
 			getServletContext().log(computerName, e);
 		}
-		
+
 		Collection<ManagedProcess> managedProcesses = processManager.getManagedProcesses();
 		request.setAttribute("managedProcesses", managedProcesses);
 	}
-	
+
 	private String getComputerName()
 	{
-	    Map<String, String> env = System.getenv();
-	    if (env.containsKey("COMPUTERNAME"))
-	        return env.get("COMPUTERNAME");
-	    else if (env.containsKey("HOSTNAME"))
-	        return env.get("HOSTNAME");
-	    else
-	        return "Unknown Computer";
+		Map<String, String> env = System.getenv();
+		if (env.containsKey("COMPUTERNAME"))
+			return env.get("COMPUTERNAME");
+		else if (env.containsKey("HOSTNAME"))
+			return env.get("HOSTNAME");
+		else
+			return "Unknown Computer";
 	}
 }
