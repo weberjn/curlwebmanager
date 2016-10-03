@@ -14,21 +14,21 @@
 	scope="application" />
 
 
-<title>manager</title>
+<title>curl Manager</title>
 
 <link href="${contextPath}/dlm.css" type="text/css" rel="stylesheet">
+<link rel="shortcut icon" href="${contextPath}/img/down.gif"
+	type="image/gif" />
 </head>
 
 <body bgcolor="#FFFFFF">
 
-	<h1>
-		<a href="${contextPath}">curl Download Manger</a>
-	</h1>
+	<h1>curl Manager</h1>
 
 
 	<table border="1" cellpadding="3">
 		<tr>
-			<td colspan="2" class="title">Download with curl</td>
+			<td colspan="2" class="title">curl</td>
 		</tr>
 		<tr>
 			<td colspan="2" class="header-left"><small>Submit curl
@@ -59,7 +59,10 @@
 
 		<table border="1" cellpadding="3">
 			<tr>
-				<td colspan="8" class="title">Download Information</td>
+				<td class="title"><a href="${contextPath}/dlm"><img
+						src="${contextPath}/img/reload.gif" title="reload" width="24"
+						height="24" alt="RELOAD" border="0"></a></td>
+				<td colspan="7" class="title">Process Information</td>
 			</tr>
 			<tr>
 
@@ -110,7 +113,7 @@
 
 				<tr>
 					<td colspan="4" class="header-left">Action on selected
-						downloads</td>
+						processes</td>
 				</tr>
 
 				<tr>
@@ -183,7 +186,7 @@
 			<td class="row-center"><small>${systemProperties['os.name']}</small></td>
 			<td class="row-center"><small>${systemProperties['os.version']}</small></td>
 			<td class="row-center"><small>${systemProperties['os.arch']}</small></td>
-			<td class="row-center"><small>${computerName}</small></td>
+			<td class="row-center"><small>${hostname}</small></td>
 			<td class="row-center"><small>${hostAddress}</small></td>
 		</tr>
 		<tr>
@@ -206,7 +209,17 @@
 			</tr>
 
 		</c:if>
-
+		<tr>
+			<td colspan="8" class="title">curl Manager</td>
+		</tr>
+		<tr>
+			<td colspan="8" class="row-left"><small>Version:
+					${version} builddate: ${builddate} Z</small></td>
+		</tr>
+		<tr>
+			<td colspan="8" class="row-left"><small>Download Dir:
+					${downloaddir}</small></td>
+		</tr>
 	</table>
 	<br>
 

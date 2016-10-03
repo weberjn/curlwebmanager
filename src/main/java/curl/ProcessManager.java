@@ -1,5 +1,6 @@
 package curl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -140,7 +141,7 @@ public class ProcessManager
 		managedProcesses.removeAll(doneProcesses);
 	}
 	
-	public void runCommand(String commandLine)
+	public void runCommand(File directory, String commandLine)
 	{
 		// http://stackoverflow.com/questions/3259143/split-a-string-containing-command-line-parameters-into-a-string-in-java
 		
@@ -150,12 +151,12 @@ public class ProcessManager
 		
 		args = tokens.toArray(args);
 		
-		runCommand(args);
+		runCommand(directory, args);
 	}
 	
-	public void runCommand(String[] args)
+	public void runCommand(File directory, String[] args)
 	{
-		ProcessExecutor processExecutor = new ProcessExecutor(args, null);
+		ProcessExecutor processExecutor = new ProcessExecutor(args, directory, null);
 		Future<Integer> future = executors.submit(processExecutor);
 
 		ManagedProcess managedProcess = new ManagedProcess();

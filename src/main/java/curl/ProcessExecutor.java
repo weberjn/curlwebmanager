@@ -1,5 +1,6 @@
 package curl;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -27,10 +28,10 @@ public class ProcessExecutor implements Callable<Integer>
 	private StringWriter stdoutStringWriter;
 
 	private Process process;
-	
+	private File directory;
 
 	
-	public ProcessExecutor(String[] args, StringWriter stdout)
+	public ProcessExecutor(String[] args, File directory, StringWriter stdout)
 	{
 		super();
 		this.args = args;
@@ -71,6 +72,7 @@ public class ProcessExecutor implements Callable<Integer>
 		startedAt = new Date();
 		
 		ProcessBuilder pb = new ProcessBuilder(args);
+		pb.directory(directory);
 
 		process = pb.start();
 
@@ -111,7 +113,7 @@ public class ProcessExecutor implements Callable<Integer>
 	public static void main(String[] args) throws Exception
 	{
 		StringWriter sw = new StringWriter();
-		ProcessExecutor pe = new ProcessExecutor(args, sw);
+		ProcessExecutor pe = new ProcessExecutor(args, new File("."), sw);
 		pe.call();
 	}
 

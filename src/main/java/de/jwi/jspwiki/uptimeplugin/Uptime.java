@@ -98,4 +98,30 @@ public class Uptime
 		return loadavg;
 	}
 
+	public String hostname() throws IOException
+	{
+		// http://stackoverflow.com/questions/6050011/how-do-i-get-the-local-hostname-if-unresolvable-through-dns-in-java/
+		
+		String hostname = null;
+
+		String os = System.getProperty("os.name");
+		if ("linux".equalsIgnoreCase(os))
+		{
+			FileInputStream fis = null;
+			try
+			{
+				fis = new FileInputStream("/proc/sys/kernel/hostname");
+				hostname = new Scanner(fis).nextLine();
+			} finally
+			{
+				if (fis != null)
+				{
+					fis.close();
+				}
+			}
+		}
+
+		return hostname;
+	}
+	
 }

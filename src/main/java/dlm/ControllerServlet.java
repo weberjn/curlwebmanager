@@ -1,17 +1,20 @@
 package dlm;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.URLDecoder;
-import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -23,23 +26,76 @@ import curl.ProcessExecutor;
 import curl.ProcessManager;
 import curl.ProcessManager.ManagedProcess;
 import de.jwi.jspwiki.uptimeplugin.Uptime;
+import dlm.util.VariableSubstitutor;
 
 public class ControllerServlet extends HttpServlet
 {
+	private static final String VERSIONCONFIGFILE = "/version.txt";
+	private static final String PROPERTIESFILE = "/WEB-INF/dlm.properties";
+	private static final String CUSTOMPROPERTIESFILE = "/dlm-custom.properties";
 	private static String version = "unknown";
 	private static String builddate = "unknown";
 
 	private ProcessManager processManager;
+	private String hostAddress;
+	private String hostname;
+	
+	Properties properties;
 
+	private File downloadDir;
+	private String canonicalDownloadPath;
+	
 	@Override
 	public void init() throws ServletException
 	{
 		super.init();
 
+		try
+		{
+			readVersion();
+			
+			hostname = readComputerName();
+			if (hostname != null)
+			{
+				InetAddress address = InetAddress.getByName(hostname);
+				hostAddress = address.getHostAddress();
+			}
+			
+			properties = new Properties();
+			
+			URL url = getServletContext().getResource(PROPERTIESFILE);
+			InputStream is = url.openStream();
+			properties.load(is);
+			is.close();
+			
+			url = getServletContext().getResource(CUSTOMPROPERTIESFILE);
+			if (url != null)
+			{
+				Properties properties2 = new Properties();
+				is = url.openStream();
+				properties2.load(is);
+				is.close();
+				properties.putAll(properties2);
+			}
+			
+			new VariableSubstitutor().substitute(properties);
+			
+			String d = properties.getProperty("downloaddir",".");
+			downloadDir = new File(d);
+			downloadDir.mkdirs();
+			
+			canonicalDownloadPath = downloadDir.getCanonicalPath();
+			
+		} catch (Exception e)
+		{
+			getServletContext().log(e.getMessage(), e);
+		}
+
 		processManager = new ProcessManager();
 		processManager.init();
 	}
 
+	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
@@ -58,8 +114,6 @@ public class ControllerServlet extends HttpServlet
 
 		String servletPath = request.getServletPath();
 
-		
-		
 		System.out.println(servletPath);
 
 		if ("/dlsub".equals(servletPath))
@@ -67,7 +121,7 @@ public class ControllerServlet extends HttpServlet
 			doRemoteSubmit(request);
 			return;
 		}
-		
+
 		System.out.println(pathInfo);
 
 		String action = request.getParameter("action");
@@ -76,7 +130,7 @@ public class ControllerServlet extends HttpServlet
 		{
 			String curl = request.getParameter("curl");
 			System.out.println("submit: " + curl);
-			processManager.runCommand(curl);
+			processManager.runCommand(downloadDir, curl);
 		}
 
 		if ("remove".equals(action) || "kill".equals(action) || "restart".equals(action))
@@ -108,19 +162,19 @@ public class ControllerServlet extends HttpServlet
 		requestDispatcher.forward(request, response);
 	}
 
-	private void doRemoteSubmit(HttpServletRequest request) throws ServletException 
+	private void doRemoteSubmit(HttpServletRequest request) throws ServletException
 	{
 		String curlCommand = request.getParameter("curl");
 		try
 		{
 			curlCommand = URLDecoder.decode(curlCommand, "UTF-8");
-			processManager.runCommand(curlCommand);
+			processManager.runCommand(downloadDir, curlCommand);
 		} catch (UnsupportedEncodingException e)
 		{
 			throw new ServletException(e);
 		}
 	}
-	
+
 	private void doMultipleActions(HttpServletRequest request, String action) throws Exception
 	{
 		String[] selectedDownloads = request.getParameterValues("index");
@@ -149,7 +203,7 @@ public class ControllerServlet extends HttpServlet
 
 		StringWriter sw = new StringWriter();
 
-		ProcessExecutor processExecutor = new ProcessExecutor(args, sw);
+		ProcessExecutor processExecutor = new ProcessExecutor(args, downloadDir, sw);
 		Integer status = processExecutor.call();
 
 		request.setAttribute("curlV", sw.toString());
@@ -163,14 +217,8 @@ public class ControllerServlet extends HttpServlet
 		String serverInfo = getServletContext().getServerInfo();
 		request.setAttribute("serverInfo", serverInfo);
 
-		String javaVersion = System.getProperty("java.version");
-		request.setAttribute("javaVersion", javaVersion);
-
-		String javaVendor = System.getProperty("java.vendor");
-		request.setAttribute("javaVendor", javaVendor);
-
-		String computerName = getComputerName();
-		request.setAttribute("computerName", computerName);
+		request.setAttribute("version", version);
+		request.setAttribute("builddate", builddate);
 
 		Runtime runtime = Runtime.getRuntime();
 		long totalMemory = runtime.totalMemory(); // current heap allocated to
@@ -196,39 +244,60 @@ public class ControllerServlet extends HttpServlet
 
 		request.setAttribute("currentTime", new Date());
 		
+		request.setAttribute("downloaddir", canonicalDownloadPath);
+
 		try
 		{
 			Uptime uptime = new Uptime();
 			request.setAttribute("uptime", uptime.uptime());
 			request.setAttribute("load", uptime.loadavg());
-		}
-		catch (IOException e)
-		{
-			getServletContext().log(computerName, e);
-		}
-		try
-		{
-			InetAddress address = InetAddress.getByName(computerName);
-			String hostAddress = address.getHostAddress();
 
+			request.setAttribute("hostname", hostname);
 			request.setAttribute("hostAddress", hostAddress);
-		} catch (UnknownHostException e)
+
+		} catch (Exception e)
 		{
-			getServletContext().log(computerName, e);
+			getServletContext().log(e.getMessage(), e);
 		}
 
 		Collection<ManagedProcess> managedProcesses = processManager.getManagedProcesses();
 		request.setAttribute("managedProcesses", managedProcesses);
 	}
 
-	private String getComputerName()
+	private String readComputerName() throws IOException
 	{
 		Map<String, String> env = System.getenv();
 		if (env.containsKey("COMPUTERNAME"))
+		{
+			// Windows
 			return env.get("COMPUTERNAME");
-		else if (env.containsKey("HOSTNAME"))
-			return env.get("HOSTNAME");
-		else
-			return "Unknown Computer";
+		}
+
+		String hostname = new Uptime().hostname();
+
+		return hostname;
+	}
+
+	private void readVersion() throws IOException
+	{
+		String s;
+	
+		InputStream is = getClass().getResourceAsStream(VERSIONCONFIGFILE);
+
+		if (is != null) {
+			Properties versionProperties = new Properties();
+			versionProperties.load(is);
+			is.close();
+			
+			s = versionProperties.getProperty("version");
+			if (null != s) {
+				version = s;
+			}
+			
+			s = versionProperties.getProperty("build.date");
+			if (null != s) {
+				builddate = s;
+			}
+		}
 	}
 }

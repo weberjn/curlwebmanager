@@ -1,5 +1,6 @@
 package curl;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -9,9 +10,11 @@ public class ProcessManagerTest
 {
 	public static void main(String[] args) throws Exception
 	{
+		File f = new File(".");
+		
 		ProcessManager pm = new ProcessManager();
 		pm.init();
-		pm.runCommand("curl --fail http://releases.ubuntu.com/16.04.1/ubuntu-16.04.1-server-amd64.iso -o ubuntu-16.04.1-server-amd64.iso");
+		pm.runCommand(f, "curl --fail http://releases.ubuntu.com/16.04.1/ubuntu-16.04.1-server-amd64.iso -o ubuntu-16.04.1-server-amd64.iso");
 
 		boolean allDone = false;
 
