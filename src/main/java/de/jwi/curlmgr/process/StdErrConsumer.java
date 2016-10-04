@@ -1,4 +1,4 @@
-package curl;
+package de.jwi.curlmgr.process;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;

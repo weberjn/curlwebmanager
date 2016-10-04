@@ -1,4 +1,4 @@
-package dlm;
+package de.jwi.curlmgr;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,19 +22,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import curl.ProcessExecutor;
-import curl.ProcessManager;
-import curl.ProcessManager.ManagedProcess;
+import de.jwi.curlmgr.process.ProcessExecutor;
+import de.jwi.curlmgr.process.ProcessManager;
+import de.jwi.curlmgr.process.ProcessManager.ManagedProcess;
 import de.jwi.jspwiki.uptimeplugin.Uptime;
-import dlm.util.VariableSubstitutor;
+import de.jwi.util.VariableSubstitutor;
 
 public class ControllerServlet extends HttpServlet
 {
+	private static final String CM_JSP = "/WEB-INF/cm.jsp";
 	private static final String VERSIONCONFIGFILE = "/version.txt";
-	private static final String PROPERTIESFILE = "/WEB-INF/dlm.properties";
-	private static final String CUSTOMPROPERTIESFILE = "/dlm-custom.properties";
+	private static final String PROPERTIESFILE = "/WEB-INF/curlmgr.properties";
+	private static final String CUSTOMPROPERTIESFILE = "/curlmgr-custom.properties";
 	private static String version = "unknown";
 	private static String builddate = "unknown";
+	
+	
 
 	private ProcessManager processManager;
 	private String hostAddress;
@@ -101,7 +104,7 @@ public class ControllerServlet extends HttpServlet
 	{
 		putServerInfo(request);
 
-		RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher("/WEB-INF/dlm.jsp");
+		RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher(CM_JSP);
 
 		requestDispatcher.forward(request, response);
 	}
@@ -157,7 +160,7 @@ public class ControllerServlet extends HttpServlet
 
 		putServerInfo(request);
 
-		RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher("/WEB-INF/dlm.jsp");
+		RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher(CM_JSP);
 
 		requestDispatcher.forward(request, response);
 	}

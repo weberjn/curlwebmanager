@@ -1,4 +1,4 @@
-package dlm.util;
+package de.jwi.util;
 
 import java.util.AbstractMap;
 import java.util.Set;

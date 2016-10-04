@@ -1,4 +1,4 @@
-package dlm.util;
+package de.jwi.util;
 
 import java.util.Properties;
 import java.util.regex.Matcher;

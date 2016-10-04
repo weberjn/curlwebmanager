@@ -1,4 +1,4 @@
-package curl;
+package de.jwi.curlmgr.process;
 
 import java.io.File;
 import java.io.InputStream;

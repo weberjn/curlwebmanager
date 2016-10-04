@@ -10,7 +10,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
-<jsp:useBean id="systemProperties" class="dlm.util.SystemProperties"
+<jsp:useBean id="systemProperties" class="de.jwi.util.SystemProperties"
 	scope="application" />
 
 

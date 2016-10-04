@@ -1,4 +1,4 @@
-package dlm.util;
+package de.jwi.curlmgr.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,6 +6,8 @@ import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import de.jwi.util.VariableSubstitutor;
 
 
 

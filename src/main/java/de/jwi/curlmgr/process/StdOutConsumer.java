@@ -1,4 +1,4 @@
-package curl;
+package de.jwi.curlmgr.process;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;
@@ -7,12 +7,12 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.concurrent.Callable;
 
-public class CollectingStdOutConsumer implements Callable<Object>
+public class StdOutConsumer implements Callable<Object>
 {
 	private InputStream inputStream;
 	private StringWriter sw;
 
-	public CollectingStdOutConsumer(InputStream inputStream, StringWriter sw)
+	public StdOutConsumer(InputStream inputStream, StringWriter sw)
 	{
 		super();
 		this.inputStream = inputStream;
@@ -29,11 +29,13 @@ public class CollectingStdOutConsumer implements Callable<Object>
 		
 		while ((line = br.readLine()) != null)
 		{
-			sw.write(line);
-			sw.write("\n");
+			if (sw!=null)
+			{
+				sw.write(line);
+				sw.write("\n");
+			}
 		}
 		
-		sw.close();
 		return null;
 	}
 

@@ -1,10 +1,11 @@
-package curl;
+package de.jwi.curlmgr.process;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import curl.ProcessManager.ManagedProcess;
+import de.jwi.curlmgr.process.ProcessManager;
+import de.jwi.curlmgr.process.ProcessManager.ManagedProcess;
 
 public class ProcessManagerTest
 {

@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>cd</groupId>
-	<artifactId>curlmgr</artifactId>
+	<groupId>de.jwi.curlmgr</groupId>
+	<artifactId>curlWebManager</artifactId>
 	<packaging>war</packaging>
 	<version>1.0-SNAPSHOT</version>
-	<name>curl Manager Webapp</name>
+	<name>curl Web Manager</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
@@ -41,8 +41,6 @@
 
 	</dependencies>
 
-
-
 	<build>
 		<finalName>curlmgr</finalName>
 
@@ -54,6 +52,5 @@
 		</resources>
 
 	</build>
-
 
 </project>

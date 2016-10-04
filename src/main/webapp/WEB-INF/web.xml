@@ -8,7 +8,7 @@
 
 	<servlet>
 		<servlet-name>ControllerServlet</servlet-name>
-		<servlet-class>dlm.ControllerServlet</servlet-class>
+		<servlet-class>de.jwi.curlmgr.ControllerServlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
