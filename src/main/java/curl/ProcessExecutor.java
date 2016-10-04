@@ -36,6 +36,7 @@ public class ProcessExecutor implements Callable<Integer>
 		super();
 		this.args = args;
 		this.stdoutStringWriter = stdout;
+		this.directory = directory;
 		
 		for (int i = 0; i < args.length; i++)
 		{

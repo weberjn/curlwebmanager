@@ -79,7 +79,7 @@ td.title {
 	font-family: sans-serif, Tahoma, Arial;
 	font-style: italic;
 	font-weight: bold;
-	background: #D2A41C;
+	background: #6699ff;
 }
 
 td.header-left {
@@ -87,7 +87,7 @@ td.header-left {
 	vertical-align: top;
 	font-family: sans-serif, Tahoma, Arial;
 	font-weight: bold;
-	background: #FFDC75;
+	background: #b3d7ff;
 }
 
 td.header-center {
@@ -95,7 +95,7 @@ td.header-center {
 	vertical-align: top;
 	font-family: sans-serif, Tahoma, Arial;
 	font-weight: bold;
-	background: #FFDC75;
+	background: #b3d7ff;
 }
 
 td.row-left {
@@ -131,7 +131,7 @@ TH.mono {
 	vertical-align: top;
 	font-family: monospace;
 	font-weight: bold;
-	background: #FFDC75;
+	background: #b3d7ff;
 	padding: 5px;
 }
 
@@ -140,7 +140,7 @@ TH {
 	vertical-align: top;
 	font-family: sans-serif, Tahoma, Arial;
 	font-weight: bold;
-	background: #FFDC75;
+	background: #b3d7ff;
 }
 
 TD {

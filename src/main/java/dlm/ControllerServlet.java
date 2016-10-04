@@ -179,6 +179,11 @@ public class ControllerServlet extends HttpServlet
 	{
 		String[] selectedDownloads = request.getParameterValues("index");
 
+		if (null == selectedDownloads)
+		{
+			return;
+		}
+		
 		for (String id : selectedDownloads)
 		{
 			if ("kill".equals(action))

@@ -217,7 +217,7 @@
 					${version} builddate: ${builddate} Z</small></td>
 		</tr>
 		<tr>
-			<td colspan="8" class="row-left"><small>Download Dir:
+			<td colspan="8" class="row-left"><small>Download dir:
 					${downloaddir}</small></td>
 		</tr>
 	</table>
