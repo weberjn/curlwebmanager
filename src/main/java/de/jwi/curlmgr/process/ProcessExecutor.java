@@ -20,7 +20,8 @@ public class ProcessExecutor implements Callable<Integer>
 
 	private AtomicReference<String> lastStdErrLine = new AtomicReference<String>(); 
 	
-	Date startedAt;
+	Date startDate, endDate;
+	
 	String outputFilename;
 	String referer;
 	
@@ -62,6 +63,11 @@ public class ProcessExecutor implements Callable<Integer>
 		return lastStdErrLine.get();	
 	}
 	
+	public void setEndDate(Date endDate)
+	{
+		this.endDate = endDate;
+	}
+	
 	public void destroy()
 	{
 		process.destroy();
@@ -70,14 +76,12 @@ public class ProcessExecutor implements Callable<Integer>
 	@Override
 	public Integer call() throws Exception
 	{
-		startedAt = new Date();
+		startDate = new Date();
 		
 		ProcessBuilder pb = new ProcessBuilder(args);
 		pb.directory(directory);
 
 		process = pb.start();
-
-		System.out.println("started");
 		
 		InputStream inputStream = process.getInputStream();
 		InputStream errorStream = process.getErrorStream();
@@ -97,16 +101,13 @@ public class ProcessExecutor implements Callable<Integer>
 
 		int exitValue = process.waitFor();
 		
-		System.err.println(Arrays.asList(args) + " waitFor done " + exitValue);
-		
-		System.out.println("futures invoked");
-		
 		for(Future<Object> future : futures){
-		    System.out.println("future.get = " + future.get());
+		    Object o = future.get();
 		}
 
 		executorService.shutdown();
 		
+		endDate = new Date();
 		
 		return exitValue;
 	}

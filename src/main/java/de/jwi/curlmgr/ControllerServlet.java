@@ -117,26 +117,21 @@ public class ControllerServlet extends HttpServlet
 
 		String servletPath = request.getServletPath();
 
-		System.out.println(servletPath);
-
 		if ("/dlsub".equals(servletPath))
 		{
 			doRemoteSubmit(request);
 			return;
 		}
 
-		System.out.println(pathInfo);
-
 		String action = request.getParameter("action");
 
 		if ("Submit".equals(action))
 		{
 			String curl = request.getParameter("curl");
-			System.out.println("submit: " + curl);
 			processManager.runCommand(downloadDir, curl);
 		}
 
-		if ("remove".equals(action) || "kill".equals(action) || "restart".equals(action))
+		if ("clean".equals(action) || "clean all".equals(action) || "kill".equals(action))
 		{
 			try
 			{
@@ -180,6 +175,13 @@ public class ControllerServlet extends HttpServlet
 
 	private void doMultipleActions(HttpServletRequest request, String action) throws Exception
 	{
+		if ("clean all".equals(action))
+		{
+			processManager.removeAllProcesses();
+			return;
+		}
+
+		
 		String[] selectedDownloads = request.getParameterValues("index");
 
 		if (null == selectedDownloads)
@@ -193,13 +195,9 @@ public class ControllerServlet extends HttpServlet
 			{
 				processManager.killProcessByID(id);
 			}
-			if ("remove".equals(action))
+			if ("clean".equals(action))
 			{
 				processManager.removeProcessByID(id);
-			}
-			if ("resubmit".equals(action))
-			{
-				processManager.resubmitProcessByID(id);
 			}
 		}
 	}

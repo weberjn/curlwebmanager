@@ -78,18 +78,15 @@
 						onclick="doChkAll(this);">
 				</small></td>
 
-				<th class="header-center"><small>Start Time</small>
-				</td>
-				<th class="header-center"><small>File</small>
-				</td>
-				<th class="header-center"><small>Referer</small>
-				</td>
-				<th class="header-center"><small>Status</small>
-				</td>
+				<th class="header-center"><small>Start Time</small></th>
+				<th class="header-center"><small>End Time</small></th>
+				<th class="header-center"><small>File</small></th>
+				<th class="header-center"><small>Referer</small></th>
+				<th class="header-center"><small>Status</small></th>
 				<th class="mono"><small> % Total % Received % Xferd
 						Average Speed Time Time Time Current Dload Upload Total Spent Left
 						Speed</small>
-				</td>
+				</th>
 			</tr>
 
 			<c:forEach items="${managedProcesses}" var="managedProcess">
@@ -100,6 +97,8 @@
 
 					<td class="row-center"><small><fmt:formatDate
 								type="BOTH" value="${managedProcess.startDate}" /></small></td>
+					<td class="row-center"><small><fmt:formatDate
+								type="BOTH" value="${managedProcess.endDate}" /></small></td>								
 					<td class="row-center"><small>${managedProcess.filename}</small></td>
 					<td class="row-center"><small>${managedProcess.referer}</small></td>
 					<td class="row-center"><small>${managedProcess.status}</small></td>
@@ -118,11 +117,11 @@
 
 				<tr>
 					<td class="row-center"><input type="submit" name="action"
-						value="remove"></td>
+						value="clean"></td>
+					<td class="row-center"><input type="submit" name="action"
+						value="clean all"></td>
 					<td class="row-center"><input type="submit" name="action"
 						value="kill"></td>
-					<td class="row-center"><input type="submit" name="action"
-						value="resubmit"></td>
 				</tr>
 			</tbody>
 		</table>

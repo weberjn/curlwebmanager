@@ -22,8 +22,6 @@ public class StdOutConsumer implements Callable<Object>
 	@Override
 	public Object call() throws Exception
 	{
-		System.out.println("StdOutConsumer call");
-		
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 		String line = null;
 		

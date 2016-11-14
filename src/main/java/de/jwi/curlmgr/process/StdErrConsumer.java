@@ -21,21 +21,14 @@ public class StdErrConsumer implements Callable<Object>
 	@Override
 	public Object call() throws Exception
 	{
-		System.out.println("StdErrConsumer call");
-		
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 		String line = null;
 
-		FileWriter fw = new FileWriter("ERR_" + hashCode());
-
 		while ((line = br.readLine()) != null)
 		{
-			fw.write(line);
 			executor.setLastLine(line);
-			fw.write("\n");
 		}
 
-		fw.close();
 		return null;
 	}
 }

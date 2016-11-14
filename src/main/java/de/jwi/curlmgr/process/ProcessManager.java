@@ -24,12 +24,12 @@ public class ProcessManager
 	{
 		ProcessExecutor processExecutor;
 		Future<Integer> future;
-		
+
 		public String getId()
 		{
 			return "" + hashCode();
 		}
-		
+
 		public String getStatus()
 		{
 			if (future.isCancelled())
@@ -39,26 +39,31 @@ public class ProcessManager
 			if (future.isDone())
 			{
 				return "done";
-			}					
-				
+			}
+
 			return "running";
 		}
-		
+
 		public String getFilename()
 		{
 			return processExecutor.outputFilename;
 		}
-		
+
 		public String getReferer()
 		{
 			return processExecutor.referer;
 		}
-		
+
 		public Date getStartDate()
 		{
-			return processExecutor.startedAt;
+			return processExecutor.startDate;
 		}
-		
+
+		public Date getEndDate()
+		{
+			return processExecutor.endDate;
+		}
+
 		public String getLastLine()
 		{
 			return processExecutor.getLastLine();
@@ -79,7 +84,7 @@ public class ProcessManager
 	{
 		return managedProcesses;
 	}
-	
+
 	public void killProcessByID(String id)
 	{
 		for (ManagedProcess process : managedProcesses)
@@ -89,11 +94,23 @@ public class ProcessManager
 				if (!process.future.isDone())
 				{
 					process.future.cancel(true);
+					process.processExecutor.setEndDate(new Date());
 				}
 			}
 		}
 	}
-	
+
+	public void removeAllProcesses()
+	{
+		for (ManagedProcess process : managedProcesses)
+		{
+			if (process.future.isDone())
+			{
+				managedProcesses.remove(process);
+			}
+		}
+	}
+
 	public void removeProcessByID(String id)
 	{
 		for (ManagedProcess process : managedProcesses)
@@ -107,7 +124,6 @@ public class ProcessManager
 			}
 		}
 	}
-	
 
 	public void resubmitProcessByID(String id)
 	{
@@ -123,7 +139,7 @@ public class ProcessManager
 			}
 		}
 	}
-	
+
 	public void removeDoneProcesses()
 	{
 		List<ManagedProcess> doneProcesses = new ArrayList<ManagedProcess>(managedProcesses.size());
@@ -136,24 +152,22 @@ public class ProcessManager
 				doneProcesses.add(p);
 			}
 		}
-		System.out.println("Processes done: " + doneProcesses.size());
-		
 		managedProcesses.removeAll(doneProcesses);
 	}
-	
+
 	public void runCommand(File directory, String commandLine)
 	{
 		// http://stackoverflow.com/questions/3259143/split-a-string-containing-command-line-parameters-into-a-string-in-java
-		
+
 		List<String> tokens = ArgumentTokenizer.tokenize(commandLine);
-		
+
 		String[] args = new String[tokens.size()];
-		
+
 		args = tokens.toArray(args);
-		
+
 		runCommand(directory, args);
 	}
-	
+
 	public void runCommand(File directory, String[] args)
 	{
 		ProcessExecutor processExecutor = new ProcessExecutor(args, directory, null);
@@ -162,15 +176,13 @@ public class ProcessManager
 		ManagedProcess managedProcess = new ManagedProcess();
 		managedProcess.processExecutor = processExecutor;
 		managedProcess.future = future;
-		
+
 		if (!args[0].equals("curl"))
 		{
 			return;
 		}
-		
+
 		managedProcesses.add(managedProcess);
 	}
-	
-
 
 }
