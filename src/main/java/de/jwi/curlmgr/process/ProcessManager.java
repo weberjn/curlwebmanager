@@ -2,7 +2,6 @@ package de.jwi.curlmgr.process;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -47,6 +46,11 @@ public class ProcessManager
 		public String getFilename()
 		{
 			return processExecutor.outputFilename;
+		}
+		
+		public String getCommandLine()
+		{
+			return processExecutor.commandLine;
 		}
 
 		public String getReferer()
@@ -159,18 +163,20 @@ public class ProcessManager
 	{
 		// http://stackoverflow.com/questions/3259143/split-a-string-containing-command-line-parameters-into-a-string-in-java
 
+		commandLine = commandLine.replace('"', '\'');
+		
 		List<String> tokens = ArgumentTokenizer.tokenize(commandLine);
 
 		String[] args = new String[tokens.size()];
 
 		args = tokens.toArray(args);
 
-		runCommand(directory, args);
+		runCommand(commandLine, directory, args);
 	}
 
-	public void runCommand(File directory, String[] args)
+	public void runCommand(String commandLine, File directory, String[] args)
 	{
-		ProcessExecutor processExecutor = new ProcessExecutor(args, directory, null);
+		ProcessExecutor processExecutor = new ProcessExecutor(commandLine, args, directory, null);
 		Future<Integer> future = executors.submit(processExecutor);
 
 		ManagedProcess managedProcess = new ManagedProcess();

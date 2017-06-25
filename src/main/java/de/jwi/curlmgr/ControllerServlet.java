@@ -71,7 +71,7 @@ public class ControllerServlet extends HttpServlet
 			properties.load(is);
 			is.close();
 			
-			url = getServletContext().getResource(CUSTOMPROPERTIESFILE);
+			url = ControllerServlet.class.getResource(CUSTOMPROPERTIESFILE);
 			if (url != null)
 			{
 				Properties properties2 = new Properties();
@@ -112,8 +112,11 @@ public class ControllerServlet extends HttpServlet
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
-		String pathInfo = null;
-		pathInfo = request.getPathInfo();
+		String contextPath = request.getContextPath();
+		
+		String pathInfo = request.getPathInfo();
+		
+		boolean redirect = false;
 
 		String servletPath = request.getServletPath();
 
@@ -128,7 +131,11 @@ public class ControllerServlet extends HttpServlet
 		if ("Submit".equals(action))
 		{
 			String curl = request.getParameter("curl");
-			processManager.runCommand(downloadDir, curl);
+			if (curl != null && !curl.isEmpty())
+			{
+				processManager.runCommand(downloadDir, curl);
+			}
+			redirect = true;
 		}
 
 		if ("clean".equals(action) || "clean all".equals(action) || "kill".equals(action))
@@ -140,6 +147,7 @@ public class ControllerServlet extends HttpServlet
 			{
 				throw new ServletException(e);
 			}
+			redirect = true;
 		}
 
 		if ("curl -V".equals(action))
@@ -155,6 +163,12 @@ public class ControllerServlet extends HttpServlet
 
 		putServerInfo(request);
 
+		if (redirect)
+		{
+			response.sendRedirect(contextPath + "/dlm");
+			return;
+		}
+		
 		RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher(CM_JSP);
 
 		requestDispatcher.forward(request, response);
@@ -209,7 +223,7 @@ public class ControllerServlet extends HttpServlet
 
 		StringWriter sw = new StringWriter();
 
-		ProcessExecutor processExecutor = new ProcessExecutor(args, downloadDir, sw);
+		ProcessExecutor processExecutor = new ProcessExecutor("", args, downloadDir, sw);
 		Integer status = processExecutor.call();
 
 		request.setAttribute("curlV", sw.toString());
@@ -252,6 +266,9 @@ public class ControllerServlet extends HttpServlet
 		
 		request.setAttribute("downloaddir", canonicalDownloadPath);
 
+		long freeSpace = new File(canonicalDownloadPath).getFreeSpace();
+		request.setAttribute("freeSpace", humanReadableByteCount(freeSpace, true));
+		
 		try
 		{
 			Uptime uptime = new Uptime();
@@ -268,6 +285,16 @@ public class ControllerServlet extends HttpServlet
 
 		Collection<ManagedProcess> managedProcesses = processManager.getManagedProcesses();
 		request.setAttribute("managedProcesses", managedProcesses);
+	}
+	
+	// from http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java/3758880
+	public static String humanReadableByteCount(long bytes, boolean si) 
+	{
+	    int unit = si ? 1000 : 1024;
+	    if (bytes < unit) return bytes + " B";
+	    int exp = (int) (Math.log(bytes) / Math.log(unit));
+	    String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
+	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 	}
 
 	private String readComputerName() throws IOException

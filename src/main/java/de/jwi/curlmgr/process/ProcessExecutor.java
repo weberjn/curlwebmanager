@@ -3,7 +3,6 @@ package de.jwi.curlmgr.process;
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +17,8 @@ public class ProcessExecutor implements Callable<Integer>
 {
 	String[] args;
 
+	String commandLine;
+	
 	private AtomicReference<String> lastStdErrLine = new AtomicReference<String>(); 
 	
 	Date startDate, endDate;
@@ -32,9 +33,10 @@ public class ProcessExecutor implements Callable<Integer>
 	private File directory;
 
 	
-	public ProcessExecutor(String[] args, File directory, StringWriter stdout)
+	public ProcessExecutor(String commandLine, String[] args, File directory, StringWriter stdout)
 	{
 		super();
+		this.commandLine = commandLine;
 		this.args = args;
 		this.stdoutStringWriter = stdout;
 		this.directory = directory;
@@ -70,7 +72,7 @@ public class ProcessExecutor implements Callable<Integer>
 	
 	public void destroy()
 	{
-		process.destroy();
+		process.destroyForcibly();
 	}
 	
 	@Override
@@ -115,7 +117,7 @@ public class ProcessExecutor implements Callable<Integer>
 	public static void main(String[] args) throws Exception
 	{
 		StringWriter sw = new StringWriter();
-		ProcessExecutor pe = new ProcessExecutor(args, new File("."), sw);
+		ProcessExecutor pe = new ProcessExecutor("", args, new File("."), sw);
 		pe.call();
 	}
 

@@ -99,7 +99,7 @@
 								type="BOTH" value="${managedProcess.startDate}" /></small></td>
 					<td class="row-center"><small><fmt:formatDate
 								type="BOTH" value="${managedProcess.endDate}" /></small></td>								
-					<td class="row-center"><small>${managedProcess.filename}</small></td>
+					<td class="row-center" title="${managedProcess.commandLine}"><small>${managedProcess.filename}</small></td>
 					<td class="row-center"><small>${managedProcess.referer}</small></td>
 					<td class="row-center"><small>${managedProcess.status}</small></td>
 					<td class="mono"><small>${managedProcess.lastLine}</small></td>
@@ -217,7 +217,7 @@
 		</tr>
 		<tr>
 			<td colspan="8" class="row-left"><small>Download dir:
-					${downloaddir}</small></td>
+					${downloaddir} ( ${freeSpace} free)</small></td>
 		</tr>
 	</table>
 	<br>
