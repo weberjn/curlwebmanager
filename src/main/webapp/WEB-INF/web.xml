@@ -13,21 +13,28 @@
 
 	<servlet-mapping>
 		<servlet-name>ControllerServlet</servlet-name>
-		<url-pattern>/dlm/*</url-pattern>
-		<url-pattern>/dlsub</url-pattern>
+		<url-pattern>/curl/*</url-pattern>
+		<url-pattern>/curlapi/*</url-pattern>
 	</servlet-mapping>
 
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>HTML Manager interface (for humans)</web-resource-name>
-			<url-pattern>/dlm/*</url-pattern>
+			<url-pattern>/curl/*</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
-			<role-name>curlmanager</role-name>
+			<role-name>curl</role-name>
 		</auth-constraint>
-       <!-- user-data-constraint>
-           <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-       </user-data-constraint -->		
+	</security-constraint>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>HTML Manager API</web-resource-name>
+			<url-pattern>/curlapi/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>curlapi</role-name>
+		</auth-constraint>
 	</security-constraint>
 
 	<login-config>
@@ -36,11 +43,15 @@
 	</login-config>
 
 	<security-role>
-		<role-name>curlmanager</role-name>
+		<role-name>curl</role-name>
+	</security-role>
+
+	<security-role>
+		<role-name>curlapi</role-name>
 	</security-role>
 
 	<welcome-file-list>
-		<welcome-file>/dlm</welcome-file>
+		<welcome-file>/curl</welcome-file>
 	</welcome-file-list>
 
 </web-app>

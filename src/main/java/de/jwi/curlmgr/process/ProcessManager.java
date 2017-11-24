@@ -165,6 +165,13 @@ public class ProcessManager
 
 		commandLine = commandLine.replace('"', '\'');
 		
+		
+		if (commandLine.startsWith("http://") || commandLine.startsWith("https://")) 
+		{
+			commandLine = "curl -O " + commandLine;
+		}
+
+		
 		List<String> tokens = ArgumentTokenizer.tokenize(commandLine);
 
 		String[] args = new String[tokens.size()];
