@@ -34,4 +34,9 @@ The application is under the Apache License 2.0
 
 Copyright 2016-2017 by Jürgen Weber
 
+# Screenshot
+
+![curlWebManager](doc/curlManager.png?raw=true)
+
+
 
