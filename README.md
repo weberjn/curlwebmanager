@@ -18,6 +18,16 @@ Should run on all Webapp 3.1 servers, i.e. Tomcat 8.5, Wildfly 10. Needs Java 8.
 
 For best energy efficency run on Raspberry pi.
 
+# Win32
+
+There must be a curl in the PATH, e.g. from a [Git for Windows](https://git-for-windows.github.io/) installation.
+
+# Bugs
+
+curlWebManager is currently single user.
+
+The Java process API does not reliably terminate a process, so there is no way to cancel a curl session. You have to kill curl from the Shell or from [Process Explorer](https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer) in Windows.
+
 # License
 
 The application is under the Apache License 2.0

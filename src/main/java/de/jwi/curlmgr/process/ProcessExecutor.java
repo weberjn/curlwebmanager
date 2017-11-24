@@ -43,7 +43,7 @@ public class ProcessExecutor implements Callable<Integer>
 		
 		for (int i = 0; i < args.length; i++)
 		{
-			if ("-o".equals(args[i]))
+			if ("-o".equals(args[i]) || "--output".equals(args[i]))
 			{
 				outputFilename = args[++i];
 			}
