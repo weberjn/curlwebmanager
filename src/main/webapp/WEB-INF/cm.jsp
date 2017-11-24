@@ -16,7 +16,7 @@
 
 <title>curl Manager</title>
 
-<link href="${contextPath}/dlm.css" type="text/css" rel="stylesheet">
+<link href="${contextPath}/curlmgr.css" type="text/css" rel="stylesheet">
 <link rel="shortcut icon" href="${contextPath}/img/down.gif"
 	type="image/gif" />
 </head>

@@ -165,7 +165,7 @@ public class ControllerServlet extends HttpServlet
 
 		if (redirect)
 		{
-			response.sendRedirect(contextPath + "/dlm");
+			response.sendRedirect(contextPath + "/curl");
 			return;
 		}
 		
