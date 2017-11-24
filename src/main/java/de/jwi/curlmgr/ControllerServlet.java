@@ -120,7 +120,7 @@ public class ControllerServlet extends HttpServlet
 
 		String servletPath = request.getServletPath();
 
-		if ("/dlsub".equals(servletPath))
+		if (servletPath != null && servletPath.startsWith("/curlapi"))
 		{
 			doRemoteSubmit(request);
 			return;
