@@ -1,6 +1,6 @@
-# curlWebManager
+# curl WebManager
 
-This is a Web Gui to start downloads with curl. Enter curl commands or http urls.
+This is a Java Servlet Web Gui to start downloads with curl. Enter curl commands or http urls.
 
 The application is secured by web application security. Add a user with the role curlmgr to your application server.
 
