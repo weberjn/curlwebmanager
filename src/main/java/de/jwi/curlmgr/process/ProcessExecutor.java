@@ -44,13 +44,13 @@ public class ProcessExecutor implements Callable<Integer>
 		for (int i = 0; i < args.length; i++)
 		{
 			if ("-o".equals(args[i]) || "--output".equals(args[i]))
-			{
+			{ 
 				outputFilename = args[++i];
 			}
 			
-			if (args[i].startsWith("Referer"))
+			if ("--referer".equals(args[i]))
 			{
-				referer = args[i].substring("Referer".length() + 1);
+				referer = args[++i];
 			}
 		}
 	}

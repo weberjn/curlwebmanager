@@ -14,7 +14,7 @@ This must be run under web application security. Without, it is the mother of al
 
 # supported Application servers
 
-Should run on all Webapp 3.1 servers, i.e. Tomcat 8.5, Wildfly 10. Needs Java 8.
+Should run on all Webapp 3.1 servers, e.g. Tomcat 8.5, Wildfly 10. Needs Java 8.
 
 For best energy efficency run on Raspberry pi.
 
