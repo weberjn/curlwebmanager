@@ -74,7 +74,9 @@
 					<td class="row-center"><small><fmt:formatDate
 								type="BOTH" value="${managedProcess.endDate}" /></small></td>								
 					<td class="row-center" title="${managedProcess.commandLine}"><small>${managedProcess.filename}</small></td>
-					<td class="row-center"><small>${managedProcess.referer}</small></td>
+					<td class="row-center"><small>
+						<c:if test="${not empty managedProcess.referer}"><a href="${managedProcess.referer}">${managedProcess.referer}</a></c:if>
+					</small></td>
 					<td class="row-center"><small>${managedProcess.status}</small></td>
 					<td class="mono"><small>${managedProcess.lastLine}</small></td>
 				</tr>
