@@ -183,6 +183,16 @@ public class ProcessManager
 
 	public void runCommand(String commandLine, File directory, String[] args)
 	{
+		// prevent double invocations
+		
+		for (ManagedProcess managedProcess : managedProcesses)
+		{
+			if (commandLine.equals(managedProcess.getCommandLine()))
+			{
+				return;
+			}
+		}
+		
 		ProcessExecutor processExecutor = new ProcessExecutor(commandLine, args, directory, null);
 		Future<Integer> future = executors.submit(processExecutor);
 

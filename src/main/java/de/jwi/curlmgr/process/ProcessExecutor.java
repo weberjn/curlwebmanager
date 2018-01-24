@@ -1,6 +1,9 @@
 package de.jwi.curlmgr.process;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Date;
@@ -99,6 +102,8 @@ public class ProcessExecutor implements Callable<Integer>
 		
 		executorService = Executors.newFixedThreadPool(2);
 
+		writeLog();
+		
 		List<Future<Object>> futures = executorService.invokeAll(callables);
 
 		int exitValue = process.waitFor();
@@ -110,8 +115,43 @@ public class ProcessExecutor implements Callable<Integer>
 		executorService.shutdown();
 		
 		endDate = new Date();
+
+		writeLog();
 		
 		return exitValue;
+	}
+	
+	private void writeLog() throws IOException
+	{
+		String l = null;
+		
+		if (endDate != null)
+		{
+				l = String.format("%tF %<tT %tF %<tT %s %s %s",  startDate, endDate, 
+				outputFilename, referer, getLastLine());
+		}
+		else
+		{
+				l = String.format("%tF %<tT %s %s",  startDate, 
+						outputFilename, referer);
+		}
+		
+		File f = new File(directory, outputFilename + ".started");
+		
+		if (endDate != null)
+		{
+			File f1 = new File(directory, outputFilename + ".done");
+			f.renameTo(f1);
+			f = f1;
+		}
+
+		BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+
+		bw.append(l);
+		
+		bw.newLine();
+		
+		bw.close();
 	}
 	
 	public static void main(String[] args) throws Exception
