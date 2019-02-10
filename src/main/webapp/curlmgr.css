@@ -126,6 +126,19 @@ td.mono {
 	color: black;
 }
 
+td.smaller {
+	font-size: smaller; 
+}
+
+td.red {
+	color: red;
+}
+
+td.green {
+	color: green;
+}
+
+
 TH.mono {
 	text-align: left;
 	vertical-align: top;

@@ -138,7 +138,7 @@ public class ControllerServlet extends HttpServlet
 			redirect = true;
 		}
 
-		if ("clean".equals(action) || "clean all".equals(action) || "kill".equals(action))
+		if ("clean".equals(action) || "clean all".equals(action) || "clean and delete".equals(action) || "kill".equals(action))
 		{
 			try
 			{
@@ -209,9 +209,10 @@ public class ControllerServlet extends HttpServlet
 			{
 				processManager.killProcessByID(id);
 			}
-			if ("clean".equals(action))
+			if ("clean".equals(action) || "clean and delete".equals(action))
 			{
-				processManager.removeProcessByID(id);
+				boolean deleteOutputFile = "clean and delete".equals(action);
+				processManager.removeProcessByID(id, deleteOutputFile);
 			}
 		}
 	}

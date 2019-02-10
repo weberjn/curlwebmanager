@@ -72,6 +72,12 @@ public class ProcessManager
 		{
 			return processExecutor.getLastLine();
 		}
+		
+		public boolean isSuccess()
+		{
+			boolean rc = processExecutor.getLastLine() != null && processExecutor.getLastLine().startsWith("100");
+			return rc;
+		}
 	}
 
 	public void init()
@@ -115,7 +121,7 @@ public class ProcessManager
 		}
 	}
 
-	public void removeProcessByID(String id)
+	public void removeProcessByID(String id, boolean deleteOutputFile)
 	{
 		for (ManagedProcess process : managedProcesses)
 		{
@@ -124,11 +130,26 @@ public class ProcessManager
 				if (process.future.isDone())
 				{
 					managedProcesses.remove(process);
+					if (deleteOutputFile)
+					{
+						deleteOutputFile(process.processExecutor);
+					}
 				}
 			}
 		}
 	}
 
+	private void deleteOutputFile(ProcessExecutor processExecutor)
+	{
+		File f = new File(processExecutor.directory, processExecutor.outputFilename);
+		
+		f.delete();
+		
+		f = new File(processExecutor.directory, processExecutor.outputFilename + ".done");
+		
+		f.delete();
+	}
+	
 	public void resubmitProcessByID(String id)
 	{
 		for (ManagedProcess process : managedProcesses)

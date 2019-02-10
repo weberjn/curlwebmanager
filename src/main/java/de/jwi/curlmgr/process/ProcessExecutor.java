@@ -33,7 +33,7 @@ public class ProcessExecutor implements Callable<Integer>
 	private StringWriter stdoutStringWriter;
 
 	private Process process;
-	private File directory;
+	File directory;
 
 	
 	public ProcessExecutor(String commandLine, String[] args, File directory, StringWriter stdout)
