@@ -15,124 +15,54 @@ import edu.rice.cs.util.ArgumentTokenizer;
 
 public class ProcessManager
 {
-	private ExecutorService executors;
+	private ExecutorService executors = Executors.newCachedThreadPool();
 
-	ConcurrentLinkedQueue<ManagedProcess> managedProcesses = new ConcurrentLinkedQueue<ManagedProcess>();
-
-	public class ManagedProcess
-	{
-		ProcessExecutor processExecutor;
-		Future<Integer> future;
-
-		public String getId()
-		{
-			return "" + hashCode();
-		}
-
-		public String getStatus()
-		{
-			if (future.isCancelled())
-			{
-				return "canceled";
-			}
-			if (future.isDone())
-			{
-				return "done";
-			}
-
-			return "running";
-		}
-
-		public String getFilename()
-		{
-			return processExecutor.outputFilename;
-		}
-		
-		public String getCommandLine()
-		{
-			return processExecutor.commandLine;
-		}
-
-		public String getReferer()
-		{
-			return processExecutor.referer;
-		}
-
-		public Date getStartDate()
-		{
-			return processExecutor.startDate;
-		}
-
-		public Date getEndDate()
-		{
-			return processExecutor.endDate;
-		}
-
-		public String getLastLine()
-		{
-			return processExecutor.getLastLine();
-		}
-		
-		public boolean isSuccess()
-		{
-			boolean rc = processExecutor.getLastLine() != null && processExecutor.getLastLine().startsWith("100");
-			return rc;
-		}
-	}
-
-	public void init()
-	{
-		executors = Executors.newCachedThreadPool();
-	}
+	ConcurrentLinkedQueue<ProcessExecutor> processes = new ConcurrentLinkedQueue<>();
 
 	public void shutdown()
 	{
 		executors.shutdown();
 	}
-
-	public Collection<ManagedProcess> getManagedProcesses()
+	
+	public Collection<ProcessExecutor> getProcessExecutors()
 	{
-		return managedProcesses;
+		return processes;
 	}
 
-	public void killProcessByID(String id)
+	public void killProcessByID(String id) throws Exception
 	{
-		for (ManagedProcess process : managedProcesses)
+		for (ProcessExecutor process : processes)
 		{
 			if (process.getId().equals(id))
 			{
-				if (!process.future.isDone())
-				{
-					process.future.cancel(true);
-					process.processExecutor.setEndDate(new Date());
-				}
+				process.destroy();
 			}
 		}
 	}
 
 	public void removeAllProcesses()
 	{
-		for (ManagedProcess process : managedProcesses)
+		for (ProcessExecutor process : processes)
 		{
 			if (process.future.isDone())
 			{
-				managedProcesses.remove(process);
+				processes.remove(process);
 			}
 		}
 	}
 
 	public void removeProcessByID(String id, boolean deleteOutputFile)
 	{
-		for (ManagedProcess process : managedProcesses)
+		for (ProcessExecutor process : processes)
 		{
 			if (process.getId().equals(id))
 			{
 				if (process.future.isDone())
 				{
-					managedProcesses.remove(process);
+					processes.remove(process);
 					if (deleteOutputFile)
 					{
-						deleteOutputFile(process.processExecutor);
+						deleteOutputFile(process);
 					}
 				}
 			}
@@ -152,13 +82,13 @@ public class ProcessManager
 	
 	public void resubmitProcessByID(String id)
 	{
-		for (ManagedProcess process : managedProcesses)
+		for (ProcessExecutor process : processes)
 		{
 			if (process.getId().equals(id))
 			{
 				if (process.future.isDone())
 				{
-					Future<Integer> future = executors.submit(process.processExecutor);
+					Future<Integer> future = executors.submit(process);
 					process.future = future;
 				}
 			}
@@ -167,17 +97,17 @@ public class ProcessManager
 
 	public void removeDoneProcesses()
 	{
-		List<ManagedProcess> doneProcesses = new ArrayList<ManagedProcess>(managedProcesses.size());
-		Iterator<ManagedProcess> it = managedProcesses.iterator();
+		List<ProcessExecutor> doneProcesses = new ArrayList<>(processes.size());
+		Iterator<ProcessExecutor> it = processes.iterator();
 		while (it.hasNext())
 		{
-			ManagedProcess p = it.next();
+			ProcessExecutor p = it.next();
 			if (p.future.isDone())
 			{
 				doneProcesses.add(p);
 			}
 		}
-		managedProcesses.removeAll(doneProcesses);
+		processes.removeAll(doneProcesses);
 	}
 
 	public void runCommand(File directory, String commandLine)
@@ -189,7 +119,7 @@ public class ProcessManager
 		
 		if (commandLine.startsWith("http://") || commandLine.startsWith("https://")) 
 		{
-			commandLine = "curl -O " + commandLine;
+			commandLine = "curl -L -O " + commandLine;
 		}
 
 		
@@ -206,9 +136,9 @@ public class ProcessManager
 	{
 		// prevent double invocations
 		
-		for (ManagedProcess managedProcess : managedProcesses)
+		for (ProcessExecutor process : processes)
 		{
-			if (commandLine.equals(managedProcess.getCommandLine()))
+			if (process.getCommandLine().equals(commandLine))
 			{
 				return;
 			}
@@ -217,16 +147,14 @@ public class ProcessManager
 		ProcessExecutor processExecutor = new ProcessExecutor(commandLine, args, directory, null);
 		Future<Integer> future = executors.submit(processExecutor);
 
-		ManagedProcess managedProcess = new ManagedProcess();
-		managedProcess.processExecutor = processExecutor;
-		managedProcess.future = future;
+		processExecutor.future = future;
 
 		if (!args[0].equals("curl"))
 		{
 			return;
 		}
 
-		managedProcesses.add(managedProcess);
+		processes.add(processExecutor);
 	}
 
 }

@@ -29,11 +29,13 @@ public class ProcessExecutor implements Callable<Integer>
 	String outputFilename;
 	String referer;
 	
-	private ExecutorService executorService;
+	private ExecutorService ioExecutorService;
 	private StringWriter stdoutStringWriter;
 
 	private Process process;
 	File directory;
+
+	Future<Integer> future;
 
 	
 	public ProcessExecutor(String commandLine, String[] args, File directory, StringWriter stdout)
@@ -58,6 +60,12 @@ public class ProcessExecutor implements Callable<Integer>
 		}
 	}
 
+	public String getId()
+	{
+		return "" + hashCode();
+	}
+
+	
 	public void setLastLine(String s)
 	{
 		lastStdErrLine.set(s);	
@@ -73,9 +81,73 @@ public class ProcessExecutor implements Callable<Integer>
 		this.endDate = endDate;
 	}
 	
-	public void destroy()
+	public String getStatus()
 	{
-		process.destroyForcibly();
+		if (future.isCancelled())
+		{
+			return "canceled";
+		}
+		if (future.isDone())
+		{
+			return "done";
+		}
+
+		return "running";
+	}
+
+	public String getFilename()
+	{
+		return outputFilename;
+	}
+	
+	
+	public String getCommandLine()
+	{
+		return commandLine;
+	}
+
+	public String getReferer()
+	{
+		return referer;
+	}
+
+	public Date getStartDate()
+	{
+		return startDate;
+	}
+
+	public Date getEndDate()
+	{
+		return endDate;
+	}
+
+
+	
+	public boolean isSuccess()
+	{
+		boolean rc = getLastLine() != null && getLastLine().startsWith("100");
+		return rc;
+	}
+	
+	
+	
+	public void destroy() throws Exception
+	{
+		if (!process.isAlive())
+		{
+			return;
+		}
+
+		setEndDate(new Date());
+		
+		process.getOutputStream().close();
+		
+		process.destroy();
+		
+		if (process.isAlive())
+		{
+			process.destroyForcibly();
+		}
 	}
 	
 	@Override
@@ -100,11 +172,11 @@ public class ProcessExecutor implements Callable<Integer>
 		callables.add(stdOutConsumer);
 		callables.add(stdErrConsumer);
 		
-		executorService = Executors.newFixedThreadPool(2);
+		ioExecutorService = Executors.newFixedThreadPool(2);
 
 		writeLog();
 		
-		List<Future<Object>> futures = executorService.invokeAll(callables);
+		List<Future<Object>> futures = ioExecutorService.invokeAll(callables);
 
 		int exitValue = process.waitFor();
 		
@@ -112,7 +184,7 @@ public class ProcessExecutor implements Callable<Integer>
 		    Object o = future.get();
 		}
 
-		executorService.shutdown();
+		ioExecutorService.shutdown();
 		
 		endDate = new Date();
 
@@ -153,6 +225,7 @@ public class ProcessExecutor implements Callable<Integer>
 		
 		bw.close();
 	}
+	
 	
 	public static void main(String[] args) throws Exception
 	{

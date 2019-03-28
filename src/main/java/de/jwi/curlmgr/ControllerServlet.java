@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import de.jwi.curlmgr.process.ProcessExecutor;
 import de.jwi.curlmgr.process.ProcessManager;
-import de.jwi.curlmgr.process.ProcessManager.ManagedProcess;
 import de.jwi.jspwiki.uptimeplugin.Uptime;
 import de.jwi.util.VariableSubstitutor;
 
@@ -95,7 +94,6 @@ public class ControllerServlet extends HttpServlet
 		}
 
 		processManager = new ProcessManager();
-		processManager.init();
 	}
 
 	
@@ -284,8 +282,8 @@ public class ControllerServlet extends HttpServlet
 			getServletContext().log(e.getMessage(), e);
 		}
 
-		Collection<ManagedProcess> managedProcesses = processManager.getManagedProcesses();
-		request.setAttribute("managedProcesses", managedProcesses);
+		Collection<ProcessExecutor> processes = processManager.getProcessExecutors();
+		request.setAttribute("processes", processes);
 	}
 	
 	// from http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java/3758880

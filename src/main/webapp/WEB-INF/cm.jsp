@@ -54,35 +54,35 @@
 				<th class="header-center smaller">Start Time</th>
 				<th class="header-center smaller">End Time</th>
 				<th class="header-center smaller">File</th>
-				<th class="header-center smaller">Referer</th>
+				<th class="header-center smaller">Referrer</th>
 				<th class="header-center smaller">Status</th>
 				<th class="mono smaller">% Total % Received % Xferd Average
 					Speed Time Time Time Current Dload Upload Total Spent Left Speed</th>
 			</tr>
 
-			<c:forEach items="${managedProcesses}" var="managedProcess">
+			<c:forEach items="${processes}" var="process">
 
 				<tr>
 					<td class="smaller"><input type="checkbox" name="index"
-						value="${managedProcess.id}"></td>
+						value="${process.id}"></td>
 
 					<td class="row-center smaller"><fmt:formatDate type="BOTH"
-							value="${managedProcess.startDate}" /></td>
+							value="${process.startDate}" /></td>
 					<td class="row-center smaller"><fmt:formatDate type="BOTH"
-							value="${managedProcess.endDate}" /></td>
+							value="${process.endDate}" /></td>
 					<td class="row-center smaller"
-						title="${managedProcess.commandLine}">${managedProcess.filename}</td>
+						title="${process.commandLine}">${process.filename}</td>
 					<td class="row-center smaller"><c:if
-							test="${not empty managedProcess.referer}">
-							<a href="${managedProcess.referer}">${managedProcess.referer}</a>
+							test="${not empty process.referer}">
+							<a href="${process.referer}">${process.referer}</a>
 						</c:if></td>
-					<td class="row-center smaller">${managedProcess.status}</td>
+					<td class="row-center smaller">${process.status}</td>
 
 					<c:choose>
-						<c:when test="${managedProcess.status == 'running'}">
+						<c:when test="${process.status == 'running'}">
 							<c:set var="color" value="" />
 						</c:when>
-						<c:when test="${managedProcess.success}">
+						<c:when test="${process.success}">
 							<c:set var="color" value="green" />
 						</c:when>
 						<c:otherwise>
@@ -90,7 +90,7 @@
 						</c:otherwise>
 					</c:choose>
 
-					<td class="mono smaller ${color}">${managedProcess.lastLine}</td>
+					<td class="mono smaller ${color}">${process.lastLine}</td>
 				</tr>
 			</c:forEach>
 		</table>
@@ -105,14 +105,13 @@
 
 				<tr>
 					<td class="row-center"><input type="submit" name="action"
-						value="clean"></td>
+						value="clean" title="remove from process list"></td>
 
 					<td class="row-center"><input type="submit" name="action"
-						value="clean and delete"></td>
-
+						value="clean and delete" title=".. and delete downloaded file"></td>
 
 					<td class="row-center"><input type="submit" name="action"
-						value="clean all"></td>
+						value="kill" title="kill curl process"></td>
 				</tr>
 			</tbody>
 		</table>
