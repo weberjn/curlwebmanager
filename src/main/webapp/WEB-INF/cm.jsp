@@ -25,6 +25,11 @@
 
 	<h1>curl Manager</h1>
 
+	<c:if test="${not empty underFreeSpaceLimit}">
+		<div class="background-red">under free space limit (${freeSpaceLimit}): ${freeSpace} free</div>
+	</c:if>
+	
+
 	<%@include file="submitarea.jsp"%>
 
 	<br>
@@ -203,7 +208,7 @@
 		</tr>
 		<tr>
 			<td colspan="8" class="row-left smaller">Download dir:
-				${downloaddir} ( ${freeSpace} free)</td>
+				${downloaddir} ( ${freeSpace} free, warning at ${freeSpaceLimit})</td>
 		</tr>
 	</table>
 	<br>

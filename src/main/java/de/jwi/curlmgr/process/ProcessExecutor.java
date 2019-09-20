@@ -202,7 +202,7 @@ public class ProcessExecutor implements Callable<Integer>
 				l = String.format("%tF %<tT %tF %<tT %s %s %s",  startDate, endDate, 
 				outputFilename, referer, getLastLine());
 		}
-		else
+		else // start
 		{
 				l = String.format("%tF %<tT %s %s",  startDate, 
 						outputFilename, referer);
@@ -234,5 +234,5 @@ public class ProcessExecutor implements Callable<Integer>
 		pe.call();
 	}
 
-	
+
 }

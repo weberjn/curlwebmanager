@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import de.jwi.curlmgr.process.ProcessExecutor;
 import de.jwi.curlmgr.process.ProcessManager;
 import de.jwi.jspwiki.uptimeplugin.Uptime;
+import de.jwi.util.HNumbers;
 import de.jwi.util.VariableSubstitutor;
 
 public class ControllerServlet extends HttpServlet
@@ -46,6 +47,7 @@ public class ControllerServlet extends HttpServlet
 
 	private File downloadDir;
 	private String canonicalDownloadPath;
+	private long freespaceWarningLimit;
 	
 	@Override
 	public void init() throws ServletException
@@ -87,6 +89,9 @@ public class ControllerServlet extends HttpServlet
 			downloadDir.mkdirs();
 			
 			canonicalDownloadPath = downloadDir.getCanonicalPath();
+			
+			d = properties.getProperty("freespaceWarningLimit","8g");
+			freespaceWarningLimit = HNumbers.parseLong(d);
 			
 		} catch (Exception e)
 		{
@@ -265,8 +270,14 @@ public class ControllerServlet extends HttpServlet
 		
 		request.setAttribute("downloaddir", canonicalDownloadPath);
 
-		long freeSpace = new File(canonicalDownloadPath).getFreeSpace();
-		request.setAttribute("freeSpace", humanReadableByteCount(freeSpace, true));
+		long freeSpace = new File(canonicalDownloadPath).getUsableSpace();
+		request.setAttribute("freeSpace", HNumbers.humanReadableByteCount(freeSpace, false));
+		request.setAttribute("freeSpaceLimit", HNumbers.humanReadableByteCount(freespaceWarningLimit, false));
+		
+		if (freeSpace < freespaceWarningLimit)
+		{
+			request.setAttribute("underFreeSpaceLimit", Boolean.TRUE);
+		}
 		
 		try
 		{
@@ -285,16 +296,7 @@ public class ControllerServlet extends HttpServlet
 		Collection<ProcessExecutor> processes = processManager.getProcessExecutors();
 		request.setAttribute("processes", processes);
 	}
-	
-	// from http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java/3758880
-	public static String humanReadableByteCount(long bytes, boolean si) 
-	{
-	    int unit = si ? 1000 : 1024;
-	    if (bytes < unit) return bytes + " B";
-	    int exp = (int) (Math.log(bytes) / Math.log(unit));
-	    String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
-	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-	}
+
 
 	private String readComputerName() throws IOException
 	{
