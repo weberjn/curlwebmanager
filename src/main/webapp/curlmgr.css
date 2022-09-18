@@ -107,6 +107,7 @@ td.row-left {
 
 td.row-center {
 	text-align: center;
+        word-break: break-all;
 	vertical-align: middle;
 	font-family: sans-serif, Tahoma, Arial;
 	color: black;
