@@ -6,11 +6,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import de.jwi.curlmgr.mqtt.MQTTNotifier;
 import edu.rice.cs.util.ArgumentTokenizer;
 
 public class ProcessManager
@@ -18,6 +20,31 @@ public class ProcessManager
 	private ExecutorService executors = Executors.newCachedThreadPool();
 
 	ConcurrentLinkedQueue<ProcessExecutor> processes = new ConcurrentLinkedQueue<>();
+
+	MQTTNotifier mQTTNotifier;
+	
+	public ProcessManager(MQTTNotifier mQTTNotifier)
+	{
+		super();
+		this.mQTTNotifier = mQTTNotifier;
+	}
+	
+	public void notify(ProcessExecutor processExecutor)
+	{
+		if (mQTTNotifier != null)
+		{
+			executors.submit(new Callable<Integer>()
+			{
+				@Override
+				public Integer call() throws Exception
+				{
+					mQTTNotifier.notify(processExecutor.isSuccess(), processExecutor.getFilename(), processExecutor.getLastLine());
+					
+					return 0;
+				}
+			});
+		}
+	}
 
 	public void shutdown()
 	{
@@ -71,11 +98,11 @@ public class ProcessManager
 
 	private void deleteOutputFile(ProcessExecutor processExecutor)
 	{
-		File f = new File(processExecutor.directory, processExecutor.outputFilename);
+		File f = new File(processExecutor.getDirectory(), processExecutor.getFilename());
 		
 		f.delete();
 		
-		f = new File(processExecutor.directory, processExecutor.outputFilename + ".done");
+		f = new File(processExecutor.getDirectory(), processExecutor.getFilename() + ".done");
 		
 		f.delete();
 	}
@@ -134,6 +161,11 @@ public class ProcessManager
 
 	public void runCommand(String commandLine, File directory, String[] args)
 	{
+		if (!args[0].equals("curl"))
+		{
+			return;
+		}
+
 		// prevent double invocations
 		
 		for (ProcessExecutor process : processes)
@@ -144,15 +176,10 @@ public class ProcessManager
 			}
 		}
 		
-		ProcessExecutor processExecutor = new ProcessExecutor(commandLine, args, directory, null);
+		ProcessExecutor processExecutor = new ProcessExecutor(this, commandLine, args, directory, null);
 		Future<Integer> future = executors.submit(processExecutor);
 
 		processExecutor.future = future;
-
-		if (!args[0].equals("curl"))
-		{
-			return;
-		}
 
 		processes.add(processExecutor);
 	}

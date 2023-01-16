@@ -24,23 +24,27 @@ public class ProcessExecutor implements Callable<Integer>
 	
 	private AtomicReference<String> lastStdErrLine = new AtomicReference<String>(); 
 	
-	Date startDate, endDate;
+	private Date startDate, endDate;
 	
-	String outputFilename;
-	String referer;
+	private String outputFilename;
+	private String referer;
+
+	private ProcessManager processManager;
 	
 	private ExecutorService ioExecutorService;
 	private StringWriter stdoutStringWriter;
 
 	private Process process;
-	File directory;
+	private File directory;
+
 
 	Future<Integer> future;
 
 	
-	public ProcessExecutor(String commandLine, String[] args, File directory, StringWriter stdout)
+	public ProcessExecutor(ProcessManager processManager, String commandLine, String[] args, File directory, StringWriter stdout)
 	{
 		super();
+		this.processManager = processManager; 
 		this.commandLine = commandLine;
 		this.args = args;
 		this.stdoutStringWriter = stdout;
@@ -100,7 +104,11 @@ public class ProcessExecutor implements Callable<Integer>
 		return outputFilename;
 	}
 	
-	
+	public File getDirectory()
+	{
+		return directory;
+	}
+
 	public String getCommandLine()
 	{
 		return commandLine;
@@ -190,6 +198,11 @@ public class ProcessExecutor implements Callable<Integer>
 
 		writeLog();
 		
+		if (processManager != null)
+		{
+			processManager.notify(this);
+		}
+		
 		return exitValue;
 	}
 	
@@ -225,14 +238,5 @@ public class ProcessExecutor implements Callable<Integer>
 		
 		bw.close();
 	}
-	
-	
-	public static void main(String[] args) throws Exception
-	{
-		StringWriter sw = new StringWriter();
-		ProcessExecutor pe = new ProcessExecutor("", args, new File("."), sw);
-		pe.call();
-	}
-
 
 }

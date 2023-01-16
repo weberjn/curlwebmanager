@@ -207,8 +207,11 @@
 				builddate: ${builddate} Z</td>
 		</tr>
 		<tr>
-			<td colspan="8" class="row-left smaller">Download dir:
+			<td colspan="4" class="row-left smaller">Download dir:
 				${downloaddir} ( ${freeSpace} free, warning at ${freeSpaceLimit})</td>
+				
+<td colspan="4" class="row-left smaller">Props:
+				${props}</td> 				
 		</tr>
 	</table>
 	<br>

@@ -12,7 +12,7 @@ public class ProcessManagerTest
 	{
 		File f = new File(".");
 		
-		ProcessManager pm = new ProcessManager();
+		ProcessManager pm = new ProcessManager(null);
 		
 		pm.runCommand(f, "curl http://releases.ubuntu.com/16.04.1/ubuntu-16.04.1-server-amd64.iso -o ubuntu-16.04.1-server-amd64.iso");
 

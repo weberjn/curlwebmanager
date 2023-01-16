@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import de.jwi.curlmgr.mqtt.MQTTNotifier;
 import de.jwi.curlmgr.process.ProcessExecutor;
 import de.jwi.curlmgr.process.ProcessManager;
 import de.jwi.jspwiki.uptimeplugin.Uptime;
@@ -42,6 +43,8 @@ public class ControllerServlet extends HttpServlet
 	private ProcessManager processManager;
 	private String hostAddress;
 	private String hostname;
+	
+	private MQTTNotifier mQTTNotifier = null;
 	
 	Properties properties;
 
@@ -84,21 +87,27 @@ public class ControllerServlet extends HttpServlet
 			
 			new VariableSubstitutor().substitute(properties);
 			
-			String d = properties.getProperty("downloaddir",".");
+			String d = properties.getProperty("downloaddir").strip();
 			downloadDir = new File(d);
 			downloadDir.mkdirs();
 			
 			canonicalDownloadPath = downloadDir.getCanonicalPath();
 			
-			d = properties.getProperty("freespaceWarningLimit","8g");
+			d = properties.getProperty("freespaceWarningLimit");
 			freespaceWarningLimit = HNumbers.parseLong(d);
+			
+			d = properties.getProperty("notifyCurlFinished").strip();
+			if ("mqtt".equalsIgnoreCase(d))
+			{
+				mQTTNotifier = new MQTTNotifier(properties);
+			}
 			
 		} catch (Exception e)
 		{
 			getServletContext().log(e.getMessage(), e);
 		}
 
-		processManager = new ProcessManager();
+		processManager = new ProcessManager(mQTTNotifier);
 	}
 
 	
@@ -227,10 +236,15 @@ public class ControllerServlet extends HttpServlet
 
 		StringWriter sw = new StringWriter();
 
-		ProcessExecutor processExecutor = new ProcessExecutor("", args, downloadDir, sw);
+		ProcessExecutor processExecutor = new ProcessExecutor(null, "", args, downloadDir, sw);
 		Integer status = processExecutor.call();
 
 		request.setAttribute("curlV", sw.toString());
+		
+		if (mQTTNotifier != null)
+		{
+			mQTTNotifier.notify(true, "curlV", sw.toString());
+		}
 	}
 
 	private void putServerInfo(HttpServletRequest request)
@@ -273,6 +287,8 @@ public class ControllerServlet extends HttpServlet
 		long freeSpace = new File(canonicalDownloadPath).getUsableSpace();
 		request.setAttribute("freeSpace", HNumbers.humanReadableByteCount(freeSpace, false));
 		request.setAttribute("freeSpaceLimit", HNumbers.humanReadableByteCount(freespaceWarningLimit, false));
+		
+		request.setAttribute("props", properties.toString());
 		
 		if (freeSpace < freespaceWarningLimit)
 		{
