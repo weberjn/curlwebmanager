@@ -8,6 +8,7 @@ tmp/
 *.swp
 *~.nib
 local.properties
+journal.txt
 .settings/
 .loadpath
 

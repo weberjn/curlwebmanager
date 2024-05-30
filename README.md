@@ -1,6 +1,6 @@
 # curl WebManager
 
-This is a Java Servlet Web GUI to start downloads with curl. Enter curl commands or http urls.
+This is a *Jakarta Servlet* Web GUI to start downloads with curl. Enter curl commands or http urls.
 
 The application is secured by web application security. Add a user with the role curlmgr to your application server.
 
@@ -14,7 +14,7 @@ This must be run under web application security. Without, it is the mother of al
 
 # supported Application servers
 
-Should run on all Webapp 3.1 servers, e.g. Tomcat 8.5, Wildfly 10. Needs Java 8.
+Should run on all Jakarta Webapp servers, e.g. Tomcat 10, Wildfly 27. Needs Java 11.
 
 For best energy efficiency run on Raspberry pi.
 
@@ -30,7 +30,7 @@ curlWebManager is currently single user.
 
 The application is under the Apache License 2.0
 
-Copyright 2016-2019 by Jürgen Weber
+Copyright 2016-2024 by Jürgen Weber
 
 # Screenshot
 
